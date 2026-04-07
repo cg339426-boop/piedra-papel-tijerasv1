@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0b0e14">
     <title>PIEDRA PAPEL TIJERAS - EL PARLEY</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -32,12 +33,10 @@
             z-index: 1000;
         }
 
-        /* --- PORTADA --- */
         #screen-home { background-color: var(--electric-blue); justify-content: space-around; padding: 40px 10px; }
         .home-title { font-size: 2.5rem; font-weight: 900; color: var(--gold); text-shadow: 2px 2px 10px #000; }
         .home-emojis .hand { font-size: 6rem; filter: drop-shadow(0 0 10px white); }
 
-        /* --- BOTONES --- */
         .btn-main {
             background: var(--accent);
             color: white; border: 3px solid white;
@@ -50,7 +49,6 @@
             padding: 8px 12px; border-radius: 5px; z-index: 2000; border: 1px solid #444;
         }
 
-        /* --- JUEGO --- */
         #game-ui { display: none; padding-top: 10px; height: 100vh; background: var(--bg); }
         .stats-bar {
             background: #1a1a2e; padding: 12px;
@@ -82,8 +80,17 @@
             border: none; border-radius: 50px; cursor: pointer;
         }
         #action-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+        
+        /* Botón de recarga especial CORREGIDO */
+        #btn-recarga {
+            display: none; background: var(--gold); color: #000;
+            width: 85%; padding: 15px; font-weight: 900;
+            font-size: 1rem; text-transform: uppercase;
+            border-radius: 50px; border: 2px solid #000;
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
-        /* --- CHAT --- */
         .chat-container {
             background: #0b0e14; height: 140px;
             margin: 10px 20px; border-radius: 15px;
@@ -93,8 +100,6 @@
         .chat-input-area { display: flex; padding: 5px; background: #1a1a2e; border-radius: 0 0 15px 15px; }
         #chat-input { flex-grow: 1; background: transparent; border: none; color: white; padding: 8px; outline: none; }
         #chat-send { background: var(--accent); border: none; color: white; padding: 5px 12px; border-radius: 8px; }
-        .msg-line { margin-bottom: 2px; }
-        .name-label { font-weight: bold; }
     </style>
 </head>
 <body>
@@ -141,7 +146,10 @@
         </div>
         <div style="margin-bottom: 5px;">
             Apuesta: $<input type="number" id="bet-amount" value="100" step="100" style="width: 60px; background: #1a1a2e; color: white; border: 1px solid var(--gold);">
+            
             <button id="action-btn" onclick="handleAction()" disabled>CARGANDO...</button>
+            
+            <button id="btn-recarga" onclick="recargarDinero()">¿PELAO? DALE AQUÍ Y RECARGA 500$ 💸</button>
         </div>
         <div class="chat-container">
             <div id="chat-messages"></div>
@@ -168,9 +176,12 @@
         let currentRoom = null;
         let isMultiplayer = false;
         let playerNumber = 1;
+        
+        // TU SMARTLINK DE ADSTERRA
+        const smartlink = "https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea";
 
-        const insults = ["ah buen boca abierta!", "chacho avisaste!", "ah buen mojón!", "muchacho ponete las pilas!", "no tenés chance mi loco!", "caíste como un coco!"];
-        const compliments = ["estás bañao en leche!", "sos un lechuo!", "DALE GUAYA!", "te pusistes los dientes de oro!", "tiralos todos pa' Lante!"];
+        const insults = ["ah buen boca abierta!🤣", "chacho avisaste!🤣", "ah buen mojón!🤣", "muchacho ponete las pilas!🤣", "no tenés chance mi loco!🤣", "caíste como un coco!"];
+        const compliments = ["sos un lechuo!😎", "DALE GUAYA!😎", "te pusistes los dientes de oro!😎", "mano tengo fe!😎"];
 
         function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-ui').style.display = 'none'; }
         function showHome() { hideAll(); document.getElementById('screen-home').style.display = 'flex'; }
@@ -183,8 +194,7 @@
             isMultiplayer = false; hideAll(); document.getElementById('game-ui').style.display = 'block';
             document.getElementById('player-info').innerText = myName + " vs PC";
             document.getElementById('status-text').innerText = "MODO SOLITARIO";
-            document.getElementById('action-btn').disabled = false;
-            document.getElementById('action-btn').innerText = "APOSTAR";
+            checkMoney();
             gameState = "idle";
         }
 
@@ -192,51 +202,49 @@
             const roomName = document.getElementById('room-id').value.trim();
             const inputName = document.getElementById('player-name').value.trim();
             if(!roomName || !inputName) return alert("¡Pon tu nombre y el código!");
-            
-            myName = inputName;
-            isMultiplayer = true; currentRoom = roomName;
+            myName = inputName; isMultiplayer = true; currentRoom = roomName;
             hideAll(); document.getElementById('game-ui').style.display = 'block';
-
             const roomRef = db.ref('rooms/' + currentRoom);
             roomRef.once('value', (snap) => {
-                if(!snap.val()) {
-                    playerNumber = 1;
-                    roomRef.set({ status: "waiting", p1_name: myName, p2_name: "Esperando...", p1_choice: "", p2_choice: "" });
-                } else {
-                    playerNumber = 2;
-                    roomRef.update({ status: "ready", p2_name: myName, p1_choice: "", p2_choice: "" });
-                }
+                if(!snap.val()) { playerNumber = 1; roomRef.set({ status: "waiting", p1_name: myName, p2_name: "Esperando...", p1_choice: "", p2_choice: "" }); }
+                else { playerNumber = 2; roomRef.update({ status: "ready", p2_name: myName, p1_choice: "", p2_choice: "" }); }
             });
-
             roomRef.on('value', (snap) => {
-                const data = snap.val();
-                if(!data) return;
-
+                const data = snap.val(); if(!data) return;
                 rivalName = (playerNumber === 1) ? data.p2_name : data.p1_name;
                 document.getElementById('player-info').innerText = `${myName} vs ${rivalName}`;
-
                 if(data.status === "ready") {
                     document.getElementById('status-text').innerText = "¡LISTOS PA' LA PELEA!";
-                    document.getElementById('action-btn').disabled = false;
-                    document.getElementById('action-btn').innerText = "APOSTAR";
+                    checkMoney();
                     if(gameState === "loading") gameState = "idle";
                 }
-
                 const rivalNum = (playerNumber === 1) ? 2 : 1;
                 if(data[`p${rivalNum}_choice`] && (gameState === "idle" || gameState === "counting")) {
                     document.getElementById('status-text').innerText = `¡${rivalName} YA LANZÓ! 🤜`;
                 }
-
                 if(data.p1_choice && data.p2_choice) processMultiResult(data.p1_choice, data.p2_choice);
             });
+        }
 
-            db.ref('chats/' + currentRoom).on('child_added', (snap) => {
-                const msg = snap.val();
-                const chatBox = document.getElementById('chat-messages');
-                const color = msg.p === 1 ? 'var(--gold)' : '#00d4ff';
-                chatBox.innerHTML += `<div class="msg-line"><span style="color:${color}" class="name-label">${msg.name}:</span> ${msg.text}</div>`;
-                chatBox.scrollTop = chatBox.scrollHeight;
-            });
+        function checkMoney() {
+            const bet = parseInt(document.getElementById('bet-amount').value);
+            if(money < bet) {
+                document.getElementById('action-btn').style.display = 'none';
+                document.getElementById('btn-recarga').style.display = 'block';
+            } else {
+                document.getElementById('action-btn').style.display = 'block';
+                document.getElementById('action-btn').disabled = false;
+                document.getElementById('action-btn').innerText = "APOSTAR";
+                document.getElementById('btn-recarga').style.display = 'none';
+            }
+        }
+
+        function recargarDinero() {
+            window.open(smartlink, '_blank'); // Abre tu publicidad
+            money += 500; // Recarga CORREGIDA a $500
+            document.getElementById('money').innerText = money;
+            checkMoney();
+            alert("¡TE CARGUÉ 500$ PA' QUE NO SIGAS LLORANDO! LANZA PUES.");
         }
 
         function handleAction() {
@@ -246,17 +254,14 @@
 
         function startRound() {
             const bet = parseInt(document.getElementById('bet-amount').value);
-            if (bet > money) return alert("¡No tienes cobres!");
+            if (bet > money) return checkMoney();
             gameState = "counting";
             document.getElementById('action-btn').disabled = true;
             let c = 3;
             const t = setInterval(() => {
                 document.getElementById('timer').innerText = c;
                 c--;
-                if(c < 0) { 
-                    clearInterval(t); 
-                    if(isMultiplayer) sendChoice(); else showSoloResult(bet);
-                }
+                if(c < 0) { clearInterval(t); if(isMultiplayer) sendChoice(); else showSoloResult(bet); }
             }, 1000);
         }
 
@@ -274,14 +279,11 @@
             const enemy = (playerNumber === 1) ? p2 : p1;
             const bet = parseInt(document.getElementById('bet-amount').value);
             const emojis = { piedra: '✊', papel: '✋', tijera: '✌️' };
-            
             let res = (mine === enemy) ? 0 : ((mine==='piedra'&&enemy==='tijera')||(mine==='papel'&&enemy==='piedra')||(mine==='tijera'&&enemy==='papel')) ? 1 : 2;
-            
             let header = "", msg = "";
             if(res === 1) { money += bet; header = "¡GANASTE!"; msg = compliments[Math.floor(Math.random()*compliments.length)]; }
             else if(res === 2) { money -= bet; header = "¡PERDISTE!"; msg = insults[Math.floor(Math.random()*insults.length)]; }
             else { header = "¡EMPATE!"; msg = "¡NADIE PERDIÓ!"; }
-
             showFinalDisplay(header, emojis[mine], emojis[enemy], msg);
             if(playerNumber === 1) setTimeout(() => db.ref('rooms/' + currentRoom).update({ p1_choice: "", p2_choice: "" }), 3000);
         }
@@ -292,27 +294,22 @@
             const mine = playerChoice || 'piedra';
             const emojis = { piedra: '✊', papel: '✋', tijera: '✌️' };
             let res = (mine === pc) ? 0 : ((mine==='piedra'&&pc==='tijera')||(mine==='papel'&&pc==='piedra')||(mine==='tijera'&&pc==='papel')) ? 1 : 2;
-            let header = res===1?"¡GANASTE!":res===2?"¡PERDISTE!":"¡EMPATE!";
-            let msg = res===1?compliments[0]:res===2?insults[0]:"¡CASI!";
-            showFinalDisplay(header, emojis[mine], emojis[pc], msg);
+            if(res === 1) money += bet; else if(res === 2) money -= bet;
+            showFinalDisplay(res===1?"¡GANASTE!":res===2?"¡PERDISTE!":"¡EMPATE!", emojis[mine], emojis[pc], res===1?compliments[0]:res===2?insults[0]:"¡CASI!");
         }
 
         function showFinalDisplay(h, m, e, txt) {
             document.getElementById('money').innerText = money;
-            document.getElementById('display').innerHTML = `
-                <div style="font-size:1.4rem; font-weight:900; color:var(--gold)">${h}</div>
-                <div style="font-size:2.8rem; margin:5px 0;">${m} <small>vs</small> ${e}</div>
-                <div class="msg-venezuela">${txt}</div>
-            `;
+            document.getElementById('display').innerHTML = `<div style="font-size:1.4rem; font-weight:900; color:var(--gold)">${h}</div><div style="font-size:2.8rem; margin:5px 0;">${m} <small>vs</small> ${e}</div><div class="msg-venezuela">${txt}</div>`;
             gameState = "result";
-            document.getElementById('action-btn').disabled = false;
+            checkMoney();
             document.getElementById('action-btn').innerText = "OTRA RONDA";
         }
 
         function resetToIdle() {
             gameState = "idle";
             document.getElementById('display').innerHTML = '<div id="timer">🌐</div><div id="status-text" style="color:var(--gold)">LISTO PARA OTRA</div>';
-            document.getElementById('action-btn').innerText = "APOSTAR";
+            checkMoney();
             playerChoice = "";
             document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
         }
@@ -330,5 +327,7 @@
             input.value = "";
         }
     </script>
+    
+    <script src="https://pl29082464.profitablecpmratenetwork.com/9e/93/2a/9e932ae1f53273f80517fa54d32a0b78.js"></script>
 </body>
 </html>
