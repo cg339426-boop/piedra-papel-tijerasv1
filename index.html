@@ -63,36 +63,60 @@
             border-radius: 25px; margin: 10px 20px;
             border: 2px solid #0f3460;
         }
-        #timer { font-size: 4rem; margin: 0; color: #ff4; }
-        .msg-venezuela { font-size: 1.1rem; font-weight: bold; margin-top: 8px; text-transform: uppercase; }
 
-        .choices-container { display: flex; justify-content: center; gap: 12px; margin: 10px 0; }
+        /* ANIMACIÓN DE PUÑOS */
+        @keyframes shakeHand {
+            0% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(-15deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        .animating-hand {
+            display: inline-block;
+            font-size: 4rem;
+            animation: shakeHand 0.4s infinite;
+        }
+        .text-ganaste { color: #00ff88; font-weight: 900; }
+        .text-perdiste { color: #ff4444; font-weight: 900; }
+        .emoji-grande { font-size: 3.5rem; margin: 10px 0; }
+
+        .choices-container { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
         .choice-btn { 
             font-size: 35px; background: #1a1a2e; 
             border: 2px solid transparent; border-radius: 15px; padding: 10px; 
         }
         .choice-btn.selected { border-color: var(--gold); background: #0f3460; transform: scale(1.1); }
 
+        /* BOTÓN APOSTAR CENTRADO */
         #action-btn {
             background: var(--win); color: #000;
-            font-weight: bold; font-size: 1.2rem;
-            width: 85%; padding: 15px;
+            font-weight: 900; font-size: 1.4rem;
+            width: 90%; padding: 18px;
             border: none; border-radius: 50px; cursor: pointer;
+            display: block; margin: 10px auto;
         }
         #action-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
         
-        /* Botón de recarga especial CORREGIDO */
         #btn-recarga {
             display: none; background: var(--gold); color: #000;
-            width: 85%; padding: 15px; font-weight: 900;
+            width: 90%; padding: 18px; font-weight: 900;
             font-size: 1rem; text-transform: uppercase;
             border-radius: 50px; border: 2px solid #000;
+            margin: 10px auto;
             animation: pulse 1s infinite;
         }
         @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
+        /* INPUT DE APUESTA GRANDE */
+        .bet-area { margin: 15px 0; font-size: 1.2rem; font-weight: bold; }
+        #bet-amount {
+            width: 100px; height: 45px; font-size: 1.6rem; 
+            background: #1a1a2e; color: white; 
+            border: 2px solid var(--gold); border-radius: 10px;
+            text-align: center; font-weight: bold;
+        }
+
         .chat-container {
-            background: #0b0e14; height: 140px;
+            background: #0b0e14; height: 130px;
             margin: 10px 20px; border-radius: 15px;
             display: flex; flex-direction: column; border: 1px solid #333;
         }
@@ -108,7 +132,7 @@
         <h1 class="home-title">💵 PIEDRA PAPEL<br>TIJERAS 💵</h1>
         <div class="home-emojis"><div class="hand">✋✊✌️</div></div>
         <h2 style="color:white">JUEGA! O TAS CAGAO.</h2>
-        <button class="btn-main" onclick="showMenu()">ENTRAR AL PARLEY</button>
+        <button class="btn-main" onclick="showMenu()">JUGAR</button>
     </div>
 
     <div id="screen-menu" class="screen" style="display: none; background: var(--bg);">
@@ -130,27 +154,30 @@
     </div>
 
     <div id="game-ui">
-        <button class="btn-back" onclick="location.reload()">SALIR</button>
+        <button class="btn-back" onclick="salirConAnuncio()">SALIR</button>
         <div class="stats-bar">
             <div id="balance">💵 $<span id="money">2000</span></div>
             <div id="player-info" style="font-size: 0.8rem; color: var(--gold); margin-top:5px;"></div>
         </div>
+        
         <div class="game-zone" id="display">
-            <div id="timer">🌐</div>
+            <div id="timer" style="font-size: 4rem;">🌐</div>
             <div id="status-text" style="color:var(--gold)">ESPERANDO...</div>
         </div>
+        
         <div class="choices-container">
             <button class="choice-btn" id="btn-piedra" onclick="selectChoice('piedra')">✊</button>
             <button class="choice-btn" id="btn-papel" onclick="selectChoice('papel')">✋</button>
             <button class="choice-btn" id="btn-tijera" onclick="selectChoice('tijera')">✌️</button>
         </div>
-        <div style="margin-bottom: 5px;">
-            Apuesta: $<input type="number" id="bet-amount" value="100" step="100" style="width: 60px; background: #1a1a2e; color: white; border: 1px solid var(--gold);">
-            
-            <button id="action-btn" onclick="handleAction()" disabled>CARGANDO...</button>
-            
-            <button id="btn-recarga" onclick="recargarDinero()">¿PELAO? DALE AQUÍ Y RECARGA 500$ 💸</button>
+        
+        <div class="bet-area">
+            APUESTA: $<input type="number" id="bet-amount" value="500" step="100">
         </div>
+        
+        <button id="action-btn" onclick="handleAction()" disabled>CARGANDO...</button>
+        <button id="btn-recarga" onclick="recargarDinero()">¿PELAO? DALE AQUÍ Y RECARGA 2000$ 💸</button>
+
         <div class="chat-container">
             <div id="chat-messages"></div>
             <div class="chat-input-area">
@@ -177,11 +204,12 @@
         let isMultiplayer = false;
         let playerNumber = 1;
         
-        // TU SMARTLINK DE ADSTERRA
         const smartlink = "https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea";
 
-        const insults = ["ah buen boca abierta!🤣", "chacho avisaste!🤣", "ah buen mojón!🤣", "muchacho ponete las pilas!🤣", "no tenés chance mi loco!🤣", "caíste como un coco!"];
-        const compliments = ["sos un lechuo!😎", "DALE GUAYA!😎", "te pusistes los dientes de oro!😎", "mano tengo fe!😎"];
+        function salirConAnuncio() {
+            window.open(smartlink, '_blank');
+            location.reload();
+        }
 
         function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-ui').style.display = 'none'; }
         function showHome() { hideAll(); document.getElementById('screen-home').style.display = 'flex'; }
@@ -240,11 +268,10 @@
         }
 
         function recargarDinero() {
-            window.open(smartlink, '_blank'); // Abre tu publicidad
-            money += 500; // Recarga CORREGIDA a $500
+            window.open(smartlink, '_blank'); 
+            money += 500; 
             document.getElementById('money').innerText = money;
             checkMoney();
-            alert("¡TE CARGUÉ 500$ PA' QUE NO SIGAS LLORANDO! LANZA PUES.");
         }
 
         function handleAction() {
@@ -259,10 +286,20 @@
             document.getElementById('action-btn').disabled = true;
             let c = 3;
             const t = setInterval(() => {
-                document.getElementById('timer').innerText = c;
+                document.getElementById('display').innerHTML = `
+                    <div style="display:flex; justify-content:center; gap:25px; margin-bottom:10px;">
+                        <div class="animating-hand">✊</div>
+                        <div class="animating-hand" style="transform: scaleX(-1);">✊</div>
+                    </div>
+                    <div style="font-size:3.5rem; color:var(--gold); font-weight:900;">${c === 0 ? "¡YA!" : c}</div>
+                `;
                 c--;
-                if(c < 0) { clearInterval(t); if(isMultiplayer) sendChoice(); else showSoloResult(bet); }
-            }, 1000);
+                if(c < -1) { 
+                    clearInterval(t); 
+                    if(isMultiplayer) sendChoice(); 
+                    else showSoloResult(bet); 
+                }
+            }, 800);
         }
 
         function sendChoice() {
@@ -279,28 +316,41 @@
             const enemy = (playerNumber === 1) ? p2 : p1;
             const bet = parseInt(document.getElementById('bet-amount').value);
             const emojis = { piedra: '✊', papel: '✋', tijera: '✌️' };
-            let res = (mine === enemy) ? 0 : ((mine==='piedra'&&enemy==='tijera')||(mine==='papel'&&enemy==='piedra')||(mine==='tijera'&&enemy==='papel')) ? 1 : 2;
-            let header = "", msg = "";
-            if(res === 1) { money += bet; header = "¡GANASTE!"; msg = compliments[Math.floor(Math.random()*compliments.length)]; }
-            else if(res === 2) { money -= bet; header = "¡PERDISTE!"; msg = insults[Math.floor(Math.random()*insults.length)]; }
-            else { header = "¡EMPATE!"; msg = "¡NADIE PERDIÓ!"; }
-            showFinalDisplay(header, emojis[mine], emojis[enemy], msg);
+            let res = (mine === enemy) ? 0 : ((mine==='piedra'&&enemy==='tijera')||(mine==='papel'&&enemy==='piedra')||(mine==='tijera'&&pc==='papel')) ? 1 : 2;
+            if(res === 1) money += bet; else if(res === 2) money -= bet;
+            showFinalDisplay(res, emojis[mine], emojis[enemy]);
             if(playerNumber === 1) setTimeout(() => db.ref('rooms/' + currentRoom).update({ p1_choice: "", p2_choice: "" }), 3000);
         }
 
         function showSoloResult(bet) {
             const opts = ['piedra', 'papel', 'tijera'];
-            const pc = opts[Math.floor(Math.random()*3)];
             const mine = playerChoice || 'piedra';
+            let pc;
+            
+            // PROBABILIDAD AL 50%
+            if(Math.random() < 0.50) { 
+                if(mine === 'piedra') pc = 'papel';
+                else if(mine === 'papel') pc = 'tijera';
+                else pc = 'piedra';
+            } else { pc = opts[Math.floor(Math.random()*3)]; }
+            
             const emojis = { piedra: '✊', papel: '✋', tijera: '✌️' };
             let res = (mine === pc) ? 0 : ((mine==='piedra'&&pc==='tijera')||(mine==='papel'&&pc==='piedra')||(mine==='tijera'&&pc==='papel')) ? 1 : 2;
             if(res === 1) money += bet; else if(res === 2) money -= bet;
-            showFinalDisplay(res===1?"¡GANASTE!":res===2?"¡PERDISTE!":"¡EMPATE!", emojis[mine], emojis[pc], res===1?compliments[0]:res===2?insults[0]:"¡CASI!");
+            showFinalDisplay(res, emojis[mine], emojis[pc]);
         }
 
-        function showFinalDisplay(h, m, e, txt) {
+        function showFinalDisplay(res, m, e) {
             document.getElementById('money').innerText = money;
-            document.getElementById('display').innerHTML = `<div style="font-size:1.4rem; font-weight:900; color:var(--gold)">${h}</div><div style="font-size:2.8rem; margin:5px 0;">${m} <small>vs</small> ${e}</div><div class="msg-venezuela">${txt}</div>`;
+            let contenido = "";
+            if (res === 1) { 
+                contenido = `<div class="text-ganaste" style="font-size:1.8rem;">GANASTE</div><div class="emoji-grande">😎</div><div class="text-ganaste" style="font-size:1.4rem;">DALE GUAYA!</div>`;
+            } else if (res === 2) { 
+                contenido = `<div class="text-perdiste" style="font-size:1.8rem;">PERDISTE</div><div class="emoji-grande">🤣</div><div class="text-perdiste" style="font-size:1.4rem;">PONTE PILAS!</div>`;
+            } else { 
+                contenido = `<div style="color:var(--gold); font-size:1.8rem; font-weight:900;">EMPATE</div><div class="emoji-grande">🤝</div><div style="color:var(--gold); font-size:1.2rem;">¡CASI LO LOGRAS!</div>`;
+            }
+            document.getElementById('display').innerHTML = contenido;
             gameState = "result";
             checkMoney();
             document.getElementById('action-btn').innerText = "OTRA RONDA";
@@ -327,7 +377,5 @@
             input.value = "";
         }
     </script>
-    
-    <script src="https://pl29082464.profitablecpmratenetwork.com/9e/93/2a/9e932ae1f53273f80517fa54d32a0b78.js"></script>
 </body>
 </html>
