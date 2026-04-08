@@ -13,6 +13,7 @@
             --accent: #e94560;
             --gold: #ffd700;
             --win: #00ff88;
+            --danger: #ff4444;
             --electric-blue: #0044ff;
         }
 
@@ -31,9 +32,10 @@
             display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 1000;
+            background-color: var(--bg);
         }
 
-        #screen-home { background-color: var(--electric-blue); justify-content: space-around; padding: 40px 10px; }
+        #screen-home { justify-content: space-around; padding: 40px 10px; }
         .home-title { font-size: 2.5rem; font-weight: 900; color: var(--gold); text-shadow: 2px 2px 10px #000; }
         .home-emojis .hand { font-size: 6rem; filter: drop-shadow(0 0 10px white); }
 
@@ -43,13 +45,8 @@
             padding: 15px 40px; font-size: 1.4rem;
             font-weight: bold; border-radius: 50px;
         }
-        .btn-back {
-            position: absolute; top: 15px; left: 15px;
-            background: rgba(255,255,255,0.1); color: white;
-            padding: 8px 12px; border-radius: 5px; z-index: 2000; border: 1px solid #444;
-        }
 
-        #game-ui { display: none; padding-top: 10px; height: 100vh; background: var(--bg); }
+        #game-ui { display: none; padding-top: 10px; height: 100vh; background: var(--bg); overflow-y: auto; }
         .stats-bar {
             background: #1a1a2e; padding: 12px;
             margin: 5px 20px; border-radius: 15px;
@@ -79,51 +76,52 @@
         .text-perdiste { color: #ff4444; font-weight: 900; }
         .emoji-grande { font-size: 3.5rem; margin: 10px 0; }
 
-        .choices-container { display: flex; justify-content: center; gap: 12px; margin: 15px 0; }
-        .choice-btn { 
-            font-size: 35px; background: #1a1a2e; 
-            border: 2px solid transparent; border-radius: 15px; padding: 10px; 
+        /* BOTONES DE APUESTA */
+        .bet-selector { display: flex; justify-content: center; gap: 8px; margin: 10px 0; }
+        .bet-opt {
+            background: #1a1a2e; border: 2px solid #444; color: white;
+            padding: 10px 12px; border-radius: 10px; font-weight: bold;
         }
-        .choice-btn.selected { border-color: var(--gold); background: #0f3460; transform: scale(1.1); }
+        .bet-opt.active { border-color: var(--gold); background: #0f3460; color: var(--gold); }
 
-        /* BOTÓN APOSTAR CENTRADO */
+        /* RECARGA ALERTA */
+        @keyframes alert-red {
+            0% { background: var(--gold); }
+            50% { background: var(--danger); box-shadow: 0 0 15px var(--danger); }
+            100% { background: var(--gold); }
+        }
+        .recarga-alert { animation: alert-red 0.5s infinite !important; color: white !important; }
+
+        .choices-container { display: flex; justify-content: center; gap: 12px; margin: 10px 0; }
+        .choice-btn { font-size: 35px; background: #1a1a2e; border: 2px solid transparent; border-radius: 15px; padding: 10px; }
+        .choice-btn.selected { border-color: var(--gold); background: #0f3460; }
+
         #action-btn {
-            background: var(--win); color: #000;
-            font-weight: 900; font-size: 1.4rem;
-            width: 90%; padding: 18px;
-            border: none; border-radius: 50px; cursor: pointer;
-            display: block; margin: 10px auto;
+            background: var(--win); color: #000; font-weight: 900; font-size: 1.4rem;
+            width: 90%; padding: 18px; border: none; border-radius: 50px; margin: 5px auto; display: block;
         }
-        #action-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
-        
-        #btn-recarga {
-            display: none; background: var(--gold); color: #000;
-            width: 90%; padding: 18px; font-weight: 900;
-            font-size: 1rem; text-transform: uppercase;
-            border-radius: 50px; border: 2px solid #000;
-            margin: 10px auto;
-            animation: pulse 1s infinite;
-        }
-        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.05);} 100% {transform: scale(1);} }
 
-        /* INPUT DE APUESTA GRANDE */
-        .bet-area { margin: 15px 0; font-size: 1.2rem; font-weight: bold; }
-        #bet-amount {
-            width: 100px; height: 45px; font-size: 1.6rem; 
-            background: #1a1a2e; color: white; 
-            border: 2px solid var(--gold); border-radius: 10px;
-            text-align: center; font-weight: bold;
+        #btn-recarga {
+            background: var(--gold); color: #000; width: 90%; padding: 15px;
+            font-weight: 900; border-radius: 50px; border: 2px solid #000;
+            margin: 5px auto; display: block;
+        }
+
+        #btn-salir-final {
+            background: var(--danger); color: white; width: 60%; padding: 10px;
+            font-weight: 900; border-radius: 50px; border: none; margin: 10px auto; display: block;
+        }
+
+        .history-box {
+            background: rgba(255,255,255,0.05); width: 85%; border-radius: 15px;
+            padding: 10px; margin-top: 15px; font-size: 0.8rem; border: 1px dashed #444;
         }
 
         .chat-container {
-            background: #0b0e14; height: 130px;
-            margin: 10px 20px; border-radius: 15px;
-            display: flex; flex-direction: column; border: 1px solid #333;
+            background: #0b0e14; height: 110px; margin: 5px 20px;
+            border-radius: 15px; display: flex; flex-direction: column; border: 1px solid #333;
         }
         #chat-messages { flex-grow: 1; overflow-y: auto; text-align: left; padding: 8px; font-size: 0.8rem; }
-        .chat-input-area { display: flex; padding: 5px; background: #1a1a2e; border-radius: 0 0 15px 15px; }
-        #chat-input { flex-grow: 1; background: transparent; border: none; color: white; padding: 8px; outline: none; }
-        #chat-send { background: var(--accent); border: none; color: white; padding: 5px 12px; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -135,26 +133,31 @@
         <button class="btn-main" onclick="showMenu()">JUGAR</button>
     </div>
 
-    <div id="screen-menu" class="screen" style="display: none; background: var(--bg);">
-        <button class="btn-back" onclick="showHome()">⬅ VOLVER</button>
-        <button class="btn-main" onclick="startSolo()" style="margin-bottom: 20px; background:#444;">SOLO (CONTRA PC)</button>
+    <div id="screen-menu" class="screen" style="display: none;">
+        <h2 style="color:var(--gold)">MODO DE JUEGO</h2>
+        <button class="btn-main" onclick="startSolo()" style="margin-bottom: 15px; background:#444;">SOLO (CONTRA PC)</button>
         <button class="btn-main" onclick="showMultiSetup()" style="background:var(--electric-blue)">CON UN AMIGO</button>
+        
+        <div class="history-box">
+            <strong style="color:var(--gold)">ÚLTIMAS 5 PARTIDAS:</strong>
+            <div id="history-list" style="margin-top:5px;">No hay registros aún</div>
+        </div>
+        <button onclick="window.open('https://wa.me/TUNUMERO', '_blank')" style="background:none; border:none; color:#777; margin-top:15px; text-decoration:underline; font-size:0.8rem;">Acerca del creador: Wiche Quintero</button>
     </div>
 
-    <div id="screen-multi-setup" class="screen" style="display: none; background: var(--bg);">
-        <button class="btn-back" onclick="showMenu()">⬅ VOLVER</button>
-        <div style="background: #1a1a2e; padding: 25px; border-radius: 20px; border: 1px solid var(--gold);">
+    <div id="screen-multi-setup" class="screen" style="display: none;">
+        <div style="background: #1a1a2e; padding: 25px; border-radius: 20px; border: 1px solid var(--gold); width: 80%;">
             <h3>¿CÓMO TE LLAMAS?</h3>
-            <input type="text" id="player-name" placeholder="TU APODO" style="padding: 10px; text-align: center; border-radius: 10px; width: 80%; margin-bottom: 15px;">
-            <h3>CÓDIGO DE SALA</h3>
-            <input type="text" id="room-id" placeholder="EJ: 777" style="padding: 12px; text-align: center; border-radius: 10px; width: 80%;">
+            <input type="text" id="player-name" placeholder="APODO" style="padding: 10px; text-align: center; width: 85%; border-radius: 10px;">
+            <h3>CÓDIGO SALA</h3>
+            <input type="text" id="room-id" placeholder="EJ: 777" style="padding: 10px; text-align: center; width: 85%; margin-top:10px; border-radius: 10px;">
             <br><br>
-            <button class="btn-main" onclick="startMulti()">CONECTAR</button>
+            <button class="btn-main" onclick="startMulti()" style="width:100%">CONECTAR</button>
+            <button onclick="showMenu()" style="background:none; border:none; color:white; margin-top:10px;">Atrás</button>
         </div>
     </div>
 
     <div id="game-ui">
-        <button class="btn-back" onclick="salirConAnuncio()">SALIR</button>
         <div class="stats-bar">
             <div id="balance">💵 $<span id="money">2000</span></div>
             <div id="player-info" style="font-size: 0.8rem; color: var(--gold); margin-top:5px;"></div>
@@ -171,117 +174,125 @@
             <button class="choice-btn" id="btn-tijera" onclick="selectChoice('tijera')">✌️</button>
         </div>
         
-        <div class="bet-area">
-            APUESTA: $<input type="number" id="bet-amount" value="500" step="100">
+        <div class="bet-selector">
+            <button class="bet-opt active" onclick="setBet(500, this)">$500</button>
+            <button class="bet-opt" onclick="setBet(1000, this)">$1000</button>
+            <button class="bet-opt" onclick="setBet(1500, this)">$1500</button>
+            <button class="bet-opt" onclick="setBet(2000, this)">$2000</button>
         </div>
         
-        <button id="action-btn" onclick="handleAction()" disabled>CARGANDO...</button>
-        <button id="btn-recarga" onclick="recargarDinero()">¿PELAO? DALE AQUÍ Y RECARGA 2000$ 💸</button>
+        <button id="action-btn" onclick="handleAction()">APOSTAR</button>
+        <button id="btn-recarga" onclick="recargarDinero()">RECARGAR $500 💸</button>
 
         <div class="chat-container">
             <div id="chat-messages"></div>
-            <div class="chat-input-area">
-                <input type="text" id="chat-input" placeholder="Dile algo...">
-                <button id="chat-send" onclick="sendChatMessage()">OK</button>
+            <div style="display:flex; padding:5px; background:#1a1a2e; border-radius:0 0 15px 15px;">
+                <input type="text" id="chat-input" placeholder="Dile algo..." style="flex-grow:1; background:transparent; border:none; color:white; outline:none;">
+                <button onclick="sendChatMessage()" style="background:var(--accent); border:none; color:white; padding:5px 10px; border-radius:5px;">OK</button>
             </div>
         </div>
+        <button id="btn-salir-final" onclick="salirConAnuncio()">SALIR</button>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyABXFpDsl2Q1Iz6V97FEKHxBho",
-            databaseURL: "https://juego-piedra-default-rtdb.firebaseio.com"
-        };
+        const firebaseConfig = { apiKey: "AIzaSyABXFpDsl2Q1Iz6V97FEKHxBho", databaseURL: "https://juego-piedra-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         let money = 2000;
+        let currentBet = 500;
         let playerChoice = "";
         let myName = "Jugador";
-        let rivalName = "Oponente";
-        let gameState = "loading";
-        let currentRoom = null;
+        let rivalName = "PC";
+        let gameState = "idle";
         let isMultiplayer = false;
+        let currentRoom = null;
         let playerNumber = 1;
+        let matchHistory = [];
+        let startTime = 0; // Para el cronómetro de recarga
         
         const smartlink = "https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea";
 
-        function salirConAnuncio() {
-            window.open(smartlink, '_blank');
-            location.reload();
+        function setBet(amt, btn) {
+            currentBet = amt;
+            document.querySelectorAll('.bet-opt').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            checkMoney();
         }
 
+        function salirConAnuncio() { window.open(smartlink, '_blank'); location.reload(); }
         function hideAll() { document.querySelectorAll('.screen').forEach(s => s.style.display = 'none'); document.getElementById('game-ui').style.display = 'none'; }
-        function showHome() { hideAll(); document.getElementById('screen-home').style.display = 'flex'; }
-        function showMenu() { hideAll(); document.getElementById('screen-menu').style.display = 'flex'; }
+        function showMenu() { hideAll(); document.getElementById('screen-menu').style.display = 'flex'; updateHistoryUI(); }
         function showMultiSetup() { hideAll(); document.getElementById('screen-multi-setup').style.display = 'flex'; }
 
         function startSolo() {
-            let n = prompt("¿Cómo te llamas, mano?", "El Chamo");
-            myName = n || "Jugador";
-            isMultiplayer = false; hideAll(); document.getElementById('game-ui').style.display = 'block';
+            let n = prompt("¿Cómo te llamas?", "El Chamo");
+            myName = n || "Jugador"; isMultiplayer = false; hideAll(); document.getElementById('game-ui').style.display = 'block';
             document.getElementById('player-info').innerText = myName + " vs PC";
-            document.getElementById('status-text').innerText = "MODO SOLITARIO";
             checkMoney();
-            gameState = "idle";
         }
 
         function startMulti() {
-            const roomName = document.getElementById('room-id').value.trim();
-            const inputName = document.getElementById('player-name').value.trim();
-            if(!roomName || !inputName) return alert("¡Pon tu nombre y el código!");
-            myName = inputName; isMultiplayer = true; currentRoom = roomName;
+            const r = document.getElementById('room-id').value.trim();
+            const n = document.getElementById('player-name').value.trim();
+            if(!r || !n) return;
+            myName = n; currentRoom = r; isMultiplayer = true;
             hideAll(); document.getElementById('game-ui').style.display = 'block';
-            const roomRef = db.ref('rooms/' + currentRoom);
-            roomRef.once('value', (snap) => {
-                if(!snap.val()) { playerNumber = 1; roomRef.set({ status: "waiting", p1_name: myName, p2_name: "Esperando...", p1_choice: "", p2_choice: "" }); }
-                else { playerNumber = 2; roomRef.update({ status: "ready", p2_name: myName, p1_choice: "", p2_choice: "" }); }
-            });
-            roomRef.on('value', (snap) => {
-                const data = snap.val(); if(!data) return;
-                rivalName = (playerNumber === 1) ? data.p2_name : data.p1_name;
+            const ref = db.ref('rooms/' + r);
+            ref.on('value', s => {
+                const d = s.val(); if(!d) { playerNumber = 1; ref.set({ status: "waiting", p1_name: n, p2_name: "...", p1_choice: "", p2_choice: "" }); return; }
+                if(d.p1_name !== n && d.p2_name === "...") { playerNumber = 2; ref.update({ status: "ready", p2_name: n }); }
+                rivalName = (playerNumber === 1) ? d.p2_name : d.p1_name;
                 document.getElementById('player-info').innerText = `${myName} vs ${rivalName}`;
-                if(data.status === "ready") {
-                    document.getElementById('status-text').innerText = "¡LISTOS PA' LA PELEA!";
-                    checkMoney();
-                    if(gameState === "loading") gameState = "idle";
-                }
-                const rivalNum = (playerNumber === 1) ? 2 : 1;
-                if(data[`p${rivalNum}_choice`] && (gameState === "idle" || gameState === "counting")) {
-                    document.getElementById('status-text').innerText = `¡${rivalName} YA LANZÓ! 🤜`;
-                }
-                if(data.p1_choice && data.p2_choice) processMultiResult(data.p1_choice, data.p2_choice);
+                if(d.p1_choice && d.p2_choice) processMultiResult(d.p1_choice, d.p2_choice);
             });
+            setupChat();
         }
 
         function checkMoney() {
-            const bet = parseInt(document.getElementById('bet-amount').value);
-            if(money < bet) {
-                document.getElementById('action-btn').style.display = 'none';
-                document.getElementById('btn-recarga').style.display = 'block';
-            } else {
-                document.getElementById('action-btn').style.display = 'block';
-                document.getElementById('action-btn').disabled = false;
-                document.getElementById('action-btn').innerText = "APOSTAR";
-                document.getElementById('btn-recarga').style.display = 'none';
-            }
+            const btnR = document.getElementById('btn-recarga');
+            const btnA = document.getElementById('action-btn');
+            if(money < 500) btnR.classList.add('recarga-alert'); else btnR.classList.remove('recarga-alert');
+            if(money < currentBet) { btnA.disabled = true; btnA.innerText = "SIN SALDO"; btnA.style.opacity = "0.5"; }
+            else { btnA.disabled = false; btnA.style.opacity = "1"; btnA.innerText = (gameState === "result") ? "OTRA RONDA" : "APOSTAR"; }
         }
 
+        // --- FUNCIÓN DE RECARGA CON CRONÓMETRO ---
         function recargarDinero() {
-            window.open(smartlink, '_blank'); 
-            money += 500; 
-            document.getElementById('money').innerText = money;
-            checkMoney();
+            startTime = Date.now();
+            window.open(smartlink, '_blank');
+            const btnR = document.getElementById('btn-recarga');
+            btnR.innerText = "VERIFICANDO... 👀";
+            btnR.disabled = true;
+
+            window.onfocus = function() {
+                let endTime = Date.now();
+                let tiempoAfuera = (endTime - startTime) / 1000;
+
+                if (tiempoAfuera >= 6) {
+                    money += 500;
+                    document.getElementById('money').innerText = money;
+                    btnR.innerText = "RECARGA EXITOSA ✅";
+                    btnR.classList.remove('recarga-alert');
+                    window.onfocus = null; // Limpiamos evento
+                    
+                    setTimeout(() => {
+                        btnR.innerText = "RECARGAR $500 💸";
+                        btnR.disabled = false;
+                        checkMoney();
+                    }, 2000);
+                } else {
+                    alert("no tan rápido!!✋ Espera 6 segundos para que se haga efectiva la recarga💵");
+                    btnR.innerText = "RECARGAR $500 💸";
+                    btnR.disabled = false;
+                    window.onfocus = null;
+                }
+            };
         }
 
-        function handleAction() {
-            if(gameState === "idle") startRound();
-            else if(gameState === "result") resetToIdle();
-        }
+        function handleAction() { if(gameState === "idle") startRound(); else if(gameState === "result") resetToIdle(); }
 
         function startRound() {
-            const bet = parseInt(document.getElementById('bet-amount').value);
-            if (bet > money) return checkMoney();
             gameState = "counting";
             document.getElementById('action-btn').disabled = true;
             let c = 3;
@@ -296,85 +307,80 @@
                 c--;
                 if(c < -1) { 
                     clearInterval(t); 
-                    if(isMultiplayer) sendChoice(); 
-                    else showSoloResult(bet); 
+                    if(isMultiplayer) {
+                        const up = {}; up[`p${playerNumber}_choice`] = playerChoice || 'piedra';
+                        db.ref('rooms/' + currentRoom).update(up);
+                        document.getElementById('display').innerHTML = "ESPERANDO...";
+                    } else showSoloResult();
                 }
             }, 800);
         }
 
-        function sendChoice() {
-            const choice = playerChoice || "piedra";
-            const up = {}; up[`p${playerNumber}_choice`] = choice;
-            db.ref('rooms/' + currentRoom).update(up);
-            document.getElementById('status-text').innerText = "ESPERANDO A " + rivalName;
-            gameState = "waiting_rival";
+        function showSoloResult() {
+            const opts = ['piedra', 'papel', 'tijera'];
+            const mine = playerChoice || 'piedra';
+            let pc = (Math.random() < 0.5) ? (mine==='piedra'?'papel':mine==='papel'?'tijera':'piedra') : opts[Math.floor(Math.random()*3)];
+            let res = (mine === pc) ? 0 : ((mine==='piedra'&&pc==='tijera')||(mine==='papel'&&pc==='piedra')||(mine==='tijera'&&pc==='papel')) ? 1 : 2;
+            finishGame(res, mine, pc);
         }
 
         function processMultiResult(p1, p2) {
-            if(gameState !== "waiting_rival" && gameState !== "counting") return;
+            if(gameState !== "counting") return;
             const mine = (playerNumber === 1) ? p1 : p2;
             const enemy = (playerNumber === 1) ? p2 : p1;
-            const bet = parseInt(document.getElementById('bet-amount').value);
-            const emojis = { piedra: '✊', papel: '✋', tijera: '✌️' };
-            let res = (mine === enemy) ? 0 : ((mine==='piedra'&&enemy==='tijera')||(mine==='papel'&&enemy==='piedra')||(mine==='tijera'&&pc==='papel')) ? 1 : 2;
-            if(res === 1) money += bet; else if(res === 2) money -= bet;
-            showFinalDisplay(res, emojis[mine], emojis[enemy]);
+            let res = (mine === enemy) ? 0 : ((mine==='piedra'&&enemy==='tijera')||(mine==='papel'&&enemy==='piedra')||(mine==='tijera'&&enemy==='papel')) ? 1 : 2;
+            finishGame(res, mine, enemy);
             if(playerNumber === 1) setTimeout(() => db.ref('rooms/' + currentRoom).update({ p1_choice: "", p2_choice: "" }), 3000);
         }
 
-        function showSoloResult(bet) {
-            const opts = ['piedra', 'papel', 'tijera'];
-            const mine = playerChoice || 'piedra';
-            let pc;
+        function finishGame(res, mine, rival) {
+            if(res === 1) { money += currentBet; addHistory(myName, rivalName, "😎", "🤡"); }
+            else if(res === 2) { money -= currentBet; addHistory(rivalName, myName, "😎", "🤡"); }
             
-            // PROBABILIDAD AL 50%
-            if(Math.random() < 0.50) { 
-                if(mine === 'piedra') pc = 'papel';
-                else if(mine === 'papel') pc = 'tijera';
-                else pc = 'piedra';
-            } else { pc = opts[Math.floor(Math.random()*3)]; }
-            
-            const emojis = { piedra: '✊', papel: '✋', tijera: '✌️' };
-            let res = (mine === pc) ? 0 : ((mine==='piedra'&&pc==='tijera')||(mine==='papel'&&pc==='piedra')||(mine==='tijera'&&pc==='papel')) ? 1 : 2;
-            if(res === 1) money += bet; else if(res === 2) money -= bet;
-            showFinalDisplay(res, emojis[mine], emojis[pc]);
+            document.getElementById('money').innerText = money;
+            let html = "";
+            if (res === 1) {
+                html = `<div class="text-ganaste" style="font-size:1.8rem;">GANASTE</div><div class="emoji-grande">💪😎</div><div class="text-ganaste" style="font-size:1.4rem;">DALE GUAYA!</div>`;
+            } else if (res === 2) {
+                html = `<div class="text-perdiste" style="font-size:1.8rem;">PERDISTE</div><div class="emoji-grande">🫵🤣</div><div class="text-perdiste" style="font-size:1.4rem;">PONTE PILAS!</div>`;
+            } else {
+                html = `<div style="color:var(--gold); font-size:1.8rem; font-weight:900;">EMPATE</div><div class="emoji-grande">🤝</div><div style="color:var(--gold); font-size:1.2rem;">¡CASI LO LOGRAS!</div>`;
+            }
+            document.getElementById('display').innerHTML = html;
+            gameState = "result"; checkMoney();
         }
 
-        function showFinalDisplay(res, m, e) {
-            document.getElementById('money').innerText = money;
-            let contenido = "";
-            if (res === 1) { 
-                contenido = `<div class="text-ganaste" style="font-size:1.8rem;">GANASTE</div><div class="emoji-grande">😎</div><div class="text-ganaste" style="font-size:1.4rem;">DALE GUAYA!</div>`;
-            } else if (res === 2) { 
-                contenido = `<div class="text-perdiste" style="font-size:1.8rem;">PERDISTE</div><div class="emoji-grande">🤣</div><div class="text-perdiste" style="font-size:1.4rem;">PONTE PILAS!</div>`;
-            } else { 
-                contenido = `<div style="color:var(--gold); font-size:1.8rem; font-weight:900;">EMPATE</div><div class="emoji-grande">🤝</div><div style="color:var(--gold); font-size:1.2rem;">¡CASI LO LOGRAS!</div>`;
-            }
-            document.getElementById('display').innerHTML = contenido;
-            gameState = "result";
-            checkMoney();
-            document.getElementById('action-btn').innerText = "OTRA RONDA";
+        function addHistory(w, l, e1, e2) {
+            matchHistory.unshift(`${w} 😎 VS ${l} 🤡`);
+            if(matchHistory.length > 5) matchHistory.pop();
         }
+
+        function updateHistoryUI() { document.getElementById('history-list').innerHTML = matchHistory.join("<br>") || "Aún no hay peleas..."; }
 
         function resetToIdle() {
-            gameState = "idle";
+            gameState = "idle"; playerChoice = "";
+            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
             document.getElementById('display').innerHTML = '<div id="timer">🌐</div><div id="status-text" style="color:var(--gold)">LISTO PARA OTRA</div>';
             checkMoney();
-            playerChoice = "";
-            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
         }
 
-        function selectChoice(c) {
-            playerChoice = c;
-            document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected'));
-            document.getElementById('btn-' + c).classList.add('selected');
-        }
+        function selectChoice(c) { playerChoice = c; document.querySelectorAll('.choice-btn').forEach(b => b.classList.remove('selected')); document.getElementById('btn-' + c).classList.add('selected'); }
 
         function sendChatMessage() {
             const input = document.getElementById('chat-input');
             if(!input.value.trim() || !currentRoom) return;
-            db.ref('chats/' + currentRoom).push({ name: myName, text: input.value, p: playerNumber });
+            db.ref('chats/' + currentRoom).push({ name: myName, text: input.value });
             input.value = "";
+        }
+
+        function setupChat() {
+            db.ref('chats/' + currentRoom).limitToLast(10).on('child_added', s => {
+                const d = s.val();
+                const div = document.createElement('div');
+                div.innerHTML = `<b>${d.name}:</b> ${d.text}`;
+                document.getElementById('chat-messages').appendChild(div);
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
+            });
         }
     </script>
 </body>
