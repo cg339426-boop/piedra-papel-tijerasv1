@@ -26,6 +26,22 @@
             overflow: hidden;
         }
 
+        /* --- EFECTOS VISUALES --- */
+        .money-rain {
+            position: fixed;
+            top: -50px;
+            font-size: 2rem;
+            z-index: 2000;
+            pointer-events: none;
+            animation: fall 2s linear forwards;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(105vh) rotate(360deg);
+            }
+        }
+
         .screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -43,7 +59,7 @@
             border: 1px solid var(--gold);
             display: flex; justify-content: space-between; align-items: center;
         }
-        #balance { color: var(--win); font-size: 1.5rem; font-weight: bold; }
+        #balance { color: var(--win); font-size: 1.5rem; font-weight: bold; text-shadow: 0 0 10px rgba(0,255,136,0.5); }
 
         .game-zone {
             height: 160px; display: flex; flex-direction: column;
@@ -64,9 +80,10 @@
         .choice-btn.selected { border-color: var(--gold); background: #0f3460; transform: scale(1.1); }
 
         .bet-opt { background: #1a1a2e; border: 2px solid #444; color: white; padding: 8px 10px; border-radius: 10px; font-weight: bold; }
-        .bet-opt.active { border-color: var(--gold); background: #0f3460; color: var(--gold); }
+        .bet-opt.active { border-color: var(--gold); background: #0f3460; color: var(--gold); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
 
-        #action-btn { background: var(--win); color: #000; font-weight: 900; font-size: 1.2rem; width: 90%; padding: 15px; border: none; border-radius: 50px; margin: 5px auto; }
+        #action-btn { background: var(--win); color: #000; font-weight: 900; font-size: 1.2rem; width: 90%; padding: 15px; border: none; border-radius: 50px; margin: 5px auto; transition: 0.3s; }
+        #action-btn:disabled { background: #555; color: #aaa; }
         #btn-recarga { background: var(--gold); color: #000; width: 90%; padding: 12px; font-weight: 900; border-radius: 50px; border: none; margin: 5px auto; }
         
         /* Botón Salir Rojo */
@@ -83,7 +100,6 @@
 </head>
 <body>
 
-    <!-- PANTALLA DE INICIO DIRECTA -->
     <div id="screen-multi-setup" class="screen">
         <div style="background: #1a1a2e; padding: 25px; border-radius: 20px; border: 1px solid var(--gold); width: 85%;">
             <h2 style="color:var(--gold); margin-top:0;">PIEDRA PAPEL TIJERAS</h2>
@@ -96,7 +112,6 @@
         </div>
     </div>
 
-    <!-- UI DEL JUEGO -->
     <div id="game-ui">
         <div class="stats-bar">
             <div id="balance">💵 $<span id="money">2000</span></div>
@@ -141,6 +156,7 @@
         const db = firebase.database();
 
         let money = 2000;
+        let currentMoneyDisplay = 2000; // Para el efecto de conteo
         let currentBet = 500;
         let playerChoice = "";
         let myName = "";
@@ -211,11 +227,41 @@
                         const up = {};
                         up[`p${playerNumber}_choice`] = playerChoice;
                         db.ref('rooms/' + currentRoom).update(up);
-                        document.getElementById('display').innerHTML = "ESPERANDO AL RIVAL...";
+                        document.getElementById('display').innerHTML = '<div style="color:var(--gold); font-size:1.2rem;">ESPERANDO AL RIVAL...</div>';
                     }
                 }, 800);
             } else {
                 resetGame();
+            }
+        }
+
+        // --- FUNCIÓN DE EFECTO DE CONTEO ---
+        function animateBalance(target) {
+            const moneySpan = document.getElementById('money');
+            const step = Math.ceil(Math.abs(target - currentMoneyDisplay) / 30); // 30 pasos de animación
+            const interval = setInterval(() => {
+                if (currentMoneyDisplay < target) {
+                    currentMoneyDisplay = Math.min(target, currentMoneyDisplay + step);
+                } else if (currentMoneyDisplay > target) {
+                    currentMoneyDisplay = Math.max(target, currentMoneyDisplay - step);
+                }
+                moneySpan.innerText = currentMoneyDisplay;
+                if (currentMoneyDisplay === target) clearInterval(interval);
+            }, 30); // 30ms por paso
+        }
+
+        // --- FUNCIÓN DE LLUVIA DE BILLETES ---
+        function createMoneyRain() {
+            const emojis = ['💸', '💵', '💰', '🤑'];
+            for (let i = 0; i < 25; i++) {
+                const bill = document.createElement('div');
+                bill.className = 'money-rain';
+                bill.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+                bill.style.left = Math.random() * 100 + 'vw';
+                bill.style.animationDelay = Math.random() * 0.5 + 's'; // Retraso aleatorio para más caos
+                document.body.appendChild(bill);
+                // Limpiar el elemento después de la animación
+                setTimeout(() => bill.remove(), 2500);
             }
         }
 
@@ -226,11 +272,15 @@
             
             let res = (mine === enemy) ? 0 : ((mine==='piedra'&&enemy==='tijera')||(mine==='papel'&&enemy==='piedra')||(mine==='tijera'&&enemy==='papel')) ? 1 : 2;
             
+            const oldMoney = money;
             if(res === 1) money += currentBet;
             else if(res === 2) money -= currentBet;
 
-            document.getElementById('money').innerText = money;
-            let html = (res === 1) ? `<h2 style="color:var(--win)">¡GANASTE! 😎</h2>` : (res === 2) ? `<h2 style="color:var(--danger)">PERDISTE 🤡</h2>` : `<h2>EMPATE 🤝</h2>`;
+            // --- DISPARAR EFECTOS VISUALES ---
+            animateBalance(money); // Conteo del saldo
+            if (res === 1) createMoneyRain(); // Lluvia si ganas
+
+            let html = (res === 1) ? `<h2 style="color:var(--win); text-shadow:0 0 15px var(--win)">¡GANASTE! 😎💸</h2>` : (res === 2) ? `<h2 style="color:var(--danger)">PERDISTE 🤡</h2>` : `<h2>EMPATE 🤝</h2>`;
             document.getElementById('display').innerHTML = html + `<p>${mine.toUpperCase()} vs ${enemy.toUpperCase()}</p>`;
             
             gameState = "result";
@@ -262,7 +312,8 @@
             window.onfocus = function() {
                 if(Date.now() - start >= 6000) {
                     money += 500;
-                    document.getElementById('money').innerText = money;
+                    animateBalance(money); // También conteo al recargar
+                    createMoneyRain(); // Pequeño efecto al recargar
                 } else {
                     alert("Debes esperar los 6 segundos del anuncio.");
                 }

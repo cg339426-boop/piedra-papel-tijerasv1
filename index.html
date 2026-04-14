@@ -8,6 +8,10 @@
         :root {
             --neon-blue: #00f3ff;
             --neon-pink: #ff00ff;
+            --neon-purple: #a855f7;
+            --neon-green: #00ff88;
+            --neon-yellow: #ffcc00;
+            --neon-orange: #ff6600;
             --bg: #0a0a0a;
         }
 
@@ -21,16 +25,16 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-y: auto;
+            padding: 20px 0;
         }
 
-        /* TÍTULO ACTUALIZADO SEGÚN TU PUNTO 1 */
         .logo {
-            font-size: 3.2rem;
+            font-size: 2.5rem;
             text-transform: uppercase;
             color: white;
             text-shadow: 3px 3px var(--neon-blue), -3px -3px var(--neon-pink);
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             letter-spacing: 5px;
             text-align: center;
             line-height: 1;
@@ -38,46 +42,61 @@
 
         .menu-container {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            width: 85%;
-            max-width: 400px;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 90%;
+            max-width: 450px;
         }
 
         .game-card {
             background: linear-gradient(145deg, #1a1a1a, #000);
             border: 2px solid #333;
-            padding: 25px;
+            padding: 20px 10px;
             border-radius: 20px;
             text-align: center;
             text-decoration: none;
             color: white;
-            font-size: 1.1rem;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             transition: 0.3s;
+            aspect-ratio: 1/1;
         }
 
-        /* Colores de bordes para que resalten */
-        .card-ppt { border-color: #ffcc00; }
-        .card-tetris { border-color: var(--neon-blue); }
-        .card-flappy { border-color: #00ff88; }
+        .game-card span:nth-child(2) {
+            font-size: 0.75rem;
+            margin-top: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Bordes actualizados según la nueva posición */
+        .card-ahorcado-mini { border-color: var(--neon-yellow); } 
+        .card-num { border-color: var(--neon-blue); }
+        .card-puzzle { border-color: var(--neon-purple); }
+        .card-memoria { border-color: var(--neon-green); }
+        .card-ppt-big { border-color: var(--neon-orange); }
+
+        .full-width {
+            grid-column: span 2;
+            aspect-ratio: auto;
+            height: 130px; /* Un poco más de altura para el texto extra */
+        }
 
         .game-card:active { transform: scale(0.95); background: #222; }
 
-        /* SECCIÓN CREADOR */
         .footer {
-            margin-top: 50px;
+            margin-top: 40px;
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.7rem;
             color: #666;
             letter-spacing: 1px;
         }
 
         .creator-link {
             display: block;
-            margin-top: 12px;
+            margin-top: 10px;
             color: var(--neon-pink);
             text-decoration: none;
             font-weight: bold;
@@ -85,7 +104,6 @@
             text-shadow: 0 0 5px var(--neon-pink);
         }
 
-        /* VENTANA EMERGENTE (MODAL) */
         #modal {
             display: none;
             position: fixed;
@@ -124,6 +142,7 @@
             margin: 15px 0;
             font-family: 'Arial', sans-serif;
             color: #ddd;
+            font-size: 0.9rem;
         }
 
         .contact-info strong { color: var(--neon-blue); display: block; margin-top: 5px; }
@@ -131,55 +150,59 @@
 </head>
 <body>
 
-    <!-- PUNTO 1: Nombre cambiado -->
-    <div class="logo">JUEGOS 🎮<br><span style="font-size: 1.1rem; color: var(--neon-blue); letter-spacing: 2px;">GAMING ZONE</span></div>
+    <div class="logo">JUEGOS 🎮<br><span style="font-size: 1rem; color: var(--neon-blue); letter-spacing: 2px;">GAMING ZONE</span></div>
 
     <div class="menu-container">
         
-        <a href="ppt.html" class="game-card card-ppt">
-            <span style="font-size: 3rem;">✊</span>
+        <a href="ahorcado.html" class="game-card card-ahorcado-mini">
+            <span style="font-size: 2.5rem;">💀</span>
+            <span>AHORCADO PRO</span>
+            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        </a>
+
+        <a href="tetris.html" class="game-card card-num">
+            <span style="font-size: 2.5rem;">👀</span>
+            <span>ENCUENTRA EL NÚMERO</span>
+            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        </a>
+
+        <a href="puzzle.html" class="game-card card-puzzle">
+            <span style="font-size: 2.5rem;">🧩</span>
+            <span>PUZZLE LOCO</span>
+            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        </a>
+
+        <a href="memoria.html" class="game-card card-memoria">
+            <span style="font-size: 2.5rem;">🧠</span>
+            <span>MEMORIA ELITE</span>
+            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        </a>
+
+        <a href="ppt.html" class="game-card card-ppt-big full-width">
+            <span style="font-size: 2.5rem;">✊</span>
             <span>PIEDRA, PAPEL, TIJERA</span>
-           <span>juega con un amigo</span>
-            <span>▶️</span>
-        </a>
-
-        <!-- PUNTO 2: Nombre cambiado a TETRIS 💣 -->
-        <a href="tetris.html" class="game-card card-tetris">
-            <span style="font-size: 3rem;">👀</span>
-            <span>NUMERO LOCO🔍</span>
-            <span>▶️</span>
-        </a>
-
-        <!-- PUNTO 3: Nombre cambiado a FLAPPY -->
-        <a href="flappy.html" class="game-card card-flappy">
-            <span style="font-size: 3rem;">🧠</span>
-            <span>MEMORIA🧠</span>
-            <span>▶️</span>
+            <span style="font-size: 0.85rem; color: var(--neon-blue); margin-top:4px;">¡JUEGA CON UN AMIGO! 👥</span>
+            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
         </a>
 
     </div>
 
-    <!-- PUNTO 4: Sección del creador -->
     <div class="footer">
         DESARROLLADO PARA GANAR 🚀
         <div class="creator-link" onclick="toggleModal(true)">ACERCA DEL CREADOR</div>
     </div>
 
-    <!-- PANTALLA DE CONTACTO -->
     <div id="overlay" onclick="toggleModal(false)"></div>
     <div id="modal">
         <h3 style="color: var(--neon-pink); margin-top: 0;">INFO DEL PROGRAMADOR</h3>
-        
         <div class="contact-info">
-            📧 CORREO:
-            <strong>tu-correo@ejemplo.com</strong>
+            📱 CONTACTO:
+            <strong>TU NOMBRE AQUÍ</strong>
         </div>
-        
         <div class="contact-info">
             📱 WHATSAPP:
             <strong>+58 000 000 0000</strong>
         </div>
-
         <button class="btn-close" onclick="toggleModal(false)">VOLVER AL MENÚ</button>
     </div>
 

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>PUZZLE KEYS - GAMING ZONE</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --neon-blue: #00d4ff;
+            --neon-red: #ff3131;
+            --premium-yellow: #ffcc00;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: var(--bg);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* BARRA DE TIEMPO */
+        .timer-container {
+            width: 90%;
+            height: 12px;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 10px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        #time-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: width 0.1s linear;
+        }
+
+        .critical-time {
+            animation: blink 0.3s infinite alternate;
+            background: var(--neon-red) !important;
+        }
+
+        @keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
+
+        .puzzle { width: 95%; max-width: 400px; padding: 15px; text-align: center; }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 20px;
+            border: 4px solid #333;
+            aspect-ratio: 1/1;
+            box-shadow: inset 0 0 20px #000;
+        }
+
+        /* ESTILO DE TECLA BASE */
+        .tile {
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: 0.1s;
+            position: relative;
+            user-select: none;
+            /* Efecto de relieve */
+            box-shadow: 0 5px 0 #000, 0 8px 15px rgba(0,0,0,0.5);
+        }
+
+        .tile:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #000;
+        }
+
+        .tile.empty {
+            background: #0a0a0a !important;
+            box-shadow: inset 0 5px 10px #000 !important;
+            border: 2px dashed #222;
+            cursor: default;
+        }
+
+        /* --- ESTILOS TEMÁTICOS (SE APLICAN POR JS) --- */
+        .theme-cyber {
+            background: linear-gradient(145deg, #1e1e1e, #222);
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            text-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .theme-gold {
+            background: linear-gradient(145deg, #b8860b, #ffd700);
+            color: #000;
+            border: 1px solid #fff;
+            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
+        }
+
+        .theme-retro {
+            background: #e0e0e0;
+            color: #333;
+            border: 2px solid #fff;
+            box-shadow: 0 5px 0 #999;
+        }
+
+        .theme-lava {
+            background: linear-gradient(145deg, #ff416c, #ff4b2b);
+            color: #fff;
+            border: 1px solid #ff0000;
+        }
+
+        .btn-ad {
+            margin-top: 20px; width: 90%;
+            background: #222; border: 2px solid var(--premium-yellow);
+            color: var(--premium-yellow); padding: 15px;
+            border-radius: 50px; font-weight: bold;
+        }
+
+        #shuffle { background: #333; border: 1px solid #555; color: #fff; padding: 10px 20px; border-radius: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="timer-container">
+        <div id="time-bar"></div>
+    </div>
+
+    <main class="puzzle">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <h2 id="theme-name" style="font-size: 0.9rem; color: #666;">MODO: CARGANDO</h2>
+            <button id="shuffle" onclick="shuffle()">REVOLVER</button>
+        </div>
+
+        <section id="board" class="board"></section>
+        
+        <button class="btn-ad" onclick="getExtraTime()">👁️ +40% TIEMPO (ADS)</button>
+    </main>
+
+<script>
+    'use strict';
+    const SIZE = 4;
+    const board = document.getElementById('board');
+    const timeBar = document.getElementById('time-bar');
+    const themeLabel = document.getElementById('theme-name');
+    const smartlink = "https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea";
+
+    const themes = [
+        { name: "CYBER NEÓN", class: "theme-cyber" },
+        { name: "ORO PREMIUM", class: "theme-gold" },
+        { name: "TECLADO RETRO", class: "theme-retro" },
+        { name: "VOLCÁNICO", class: "theme-lava" }
+    ];
+
+    let currentTheme = themes[0];
+    let state = [];
+    let timeLeft = 100;
+    let gameActive = true;
+    let timerInterval;
+
+    function initGame() {
+        currentTheme = themes[Math.floor(Math.random() * themes.length)];
+        themeLabel.innerText = "MODO: " + currentTheme.name;
+        state = [];
+        for (let i=1; i<SIZE*SIZE; i++) state.push(i);
+        state.push(0);
+        shuffle();
+    }
+
+    function render() {
+        board.innerHTML = '';
+        state.forEach((val, i) => {
+            const tile = document.createElement('div');
+            tile.className = 'tile ' + (val === 0 ? 'empty' : currentTheme.class);
+            tile.textContent = val === 0 ? '' : val;
+            tile.dataset.index = i;
+            if (val !== 0) tile.addEventListener('click', onTileClick);
+            board.appendChild(tile);
+        });
+    }
+
+    function onTileClick(e) {
+        if (!gameActive) return;
+        const i = Number(e.currentTarget.dataset.index);
+        const empty = state.indexOf(0);
+        const r = Math.floor(i/SIZE), c = i%SIZE;
+        const er = Math.floor(empty/SIZE), ec = empty%SIZE;
+        
+        if (Math.abs(r-er) + Math.abs(c-ec) === 1) {
+            [state[i], state[empty]] = [state[empty], state[i]];
+            render();
+            if (isSolved()) {
+                gameActive = false;
+                clearInterval(timerInterval);
+                alert('¡LOGRADO! Siguiente estilo...');
+                setTimeout(initGame, 1000);
+            }
+        }
+    }
+
+    function isSolved() {
+        for (let i=0; i<state.length-1; i++) if (state[i] !== i+1) return false;
+        return state[state.length-1] === 0;
+    }
+
+    function shuffle() {
+        // Cambiar tema al revolver para que no aburra
+        currentTheme = themes[Math.floor(Math.random() * themes.length)];
+        themeLabel.innerText = "MODO: " + currentTheme.name;
+        
+        do {
+            for (let i=state.length-1; i>0; i--) {
+                const j = Math.floor(Math.random()*(i+1));
+                [state[i], state[j]] = [state[j], state[i]];
+            }
+        } while (!isSolvable() || isSolved());
+        
+        timeLeft = 100;
+        gameActive = true;
+        render();
+        startTimer();
+    }
+
+    function isSolvable() {
+        const arr = state.filter(n => n !== 0);
+        let inv = 0;
+        for (let i=0; i<arr.length; i++) 
+            for (let j=i+1; j<arr.length; j++) 
+                if (arr[i] > arr[j]) inv++;
+        const rowFromBottom = SIZE - Math.floor(state.indexOf(0)/SIZE);
+        return SIZE % 2 === 1 ? inv % 2 === 0 : (rowFromBottom % 2 === 0 ? inv % 2 === 1 : inv % 2 === 0);
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (gameActive) {
+                timeLeft -= 0.5;
+                timeBar.style.width = timeLeft + "%";
+                if (timeLeft <= 30) timeBar.classList.add('critical-time');
+                else timeBar.classList.remove('critical-time');
+
+                if (timeLeft <= 0) {
+                    gameActive = false;
+                    clearInterval(timerInterval);
+                    alert("¡TIEMPO AGOTADO!");
+                }
+            }
+        }, 500);
+    }
+
+    function getExtraTime() {
+        let startTime = Date.now();
+        window.open(smartlink, '_blank');
+        window.onfocus = function() {
+            if (Date.now() - startTime >= 6000) {
+                timeLeft = Math.min(100, timeLeft + 40);
+                timeBar.style.width = timeLeft + "%";
+                alert("🎁 ¡TIEMPO EXTRA!");
+            }
+            window.onfocus = null;
+        };
+    }
+
+    initGame();
+</script>
+</body>
+</html>
