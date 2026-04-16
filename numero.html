@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>NÚMERO LOCO PRO ⚡</title>
+    <style>
+        :root {
+            --neon: #ffcc00; /* Color inicial */
+            --bg: #050505;
+        }
+
+        body {
+            background: var(--bg);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            transition: background 0.5s;
+        }
+
+        .header {
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255,255,255,0.05);
+            border-bottom: 3px solid var(--neon);
+            font-weight: 900;
+            transition: border-color 0.5s;
+        }
+
+        .timer-container {
+            width: 90%;
+            height: 12px;
+            background: #222;
+            margin: 15px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #333;
+        }
+
+        #timer-bar {
+            width: 100%;
+            height: 100%;
+            background: var(--neon);
+            transition: width 0.1s linear, background-color 0.5s;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 92%;
+            max-width: 400px;
+        }
+
+        .num-btn {
+            background: rgba(255,255,255,0.02);
+            border: 2px solid var(--neon);
+            color: var(--neon);
+            aspect-ratio: 1;
+            border-radius: 12px;
+            font-size: 1.6rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .num-btn:active {
+            transform: scale(0.85);
+            background: var(--neon);
+            color: black;
+        }
+
+        .num-btn.correct {
+            opacity: 0.1;
+            pointer-events: none;
+            transform: scale(0.9);
+        }
+
+        /* BOTÓN DE TIEMPO MÁS VISIBLE */
+        .btn-boost {
+            margin-top: 25px;
+            background: #ffcc00;
+            color: black;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1rem;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4);
+            animation: pulse-gold 1.5s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes pulse-gold {
+            0% { transform: scale(1); box-shadow: 0 0 10px #ffcc00; }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px #ffcc00; }
+            100% { transform: scale(1); box-shadow: 0 0 10px #ffcc00; }
+        }
+
+        /* VENTANAS FLOTANTES */
+        .overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+        }
+
+        .win-card {
+            background: #111;
+            padding: 40px;
+            border-radius: 30px;
+            border: 3px solid var(--neon);
+            width: 80%;
+        }
+
+        .btn-action {
+            background: var(--neon);
+            color: black;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 900;
+            font-size: 1.1rem;
+            margin-top: 20px;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header" id="game-header">
+        <span>NIVEL: <span id="level-txt">1</span></span>
+        <span>SIGUIENTE: <span id="next-num">1</span></span>
+    </div>
+
+    <div class="timer-container">
+        <div id="timer-bar"></div>
+    </div>
+
+    <div class="grid" id="grid"></div>
+
+    <button class="btn-boost" onclick="getExtraTime()">⏱️ +15 SEG (ANUNCIO)</button>
+
+    <div id="win-overlay" class="overlay">
+        <div class="win-card" id="win-card">
+            <h1 style="color: var(--neon)">¡NIVEL SUPERADO!</h1>
+            <p id="bonus-txt">Cada vez más rápido...</p>
+            <button class="btn-action" onclick="nextLevel()">SIGUIENTE</button>
+        </div>
+    </div>
+
+    <div id="lose-overlay" class="overlay">
+        <h1 style="color: #ff3131">¡TIEMPO AGOTADO!</h1>
+        <p>Te quedaste en el nivel <span id="final-lvl">1</span></p>
+        <button class="btn-action" style="background:#ff3131; color:white;" onclick="location.reload()">REINTENTAR</button>
+    </div>
+
+    <script>
+        let currentTarget = 1;
+        let level = 1;
+        let baseTime = 20;
+        let timeLeft = 20;
+        let timer;
+        const colors = ['#ffcc00', '#00ff88', '#00d4ff', '#ff3131', '#f43f5e', '#a855f7'];
+
+        function initLevel() {
+            const nums = Array.from({length: 16}, (_, i) => i + 1);
+            nums.sort(() => Math.random() - 0.5);
+            
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            // Cambiar color según nivel
+            const colorActual = colors[(level - 1) % colors.length];
+            document.documentElement.style.setProperty('--neon', colorActual);
+
+            nums.forEach(n => {
+                const btn = document.createElement('button');
+                btn.className = 'num-btn';
+                btn.innerText = n;
+                btn.onclick = () => checkNum(n, btn);
+                grid.appendChild(btn);
+            });
+
+            currentTarget = 1;
+            document.getElementById('next-num').innerText = currentTarget;
+            document.getElementById('level-txt').innerText = level;
+            
+            // Reducir tiempo base en cada nivel (mínimo 8 segundos)
+            timeLeft = Math.max(8, baseTime - (level * 1.5));
+            startTimer();
+        }
+
+        function checkNum(n, btn) {
+            if (n === currentTarget) {
+                btn.classList.add('correct');
+                currentTarget++;
+                document.getElementById('next-num').innerText = currentTarget;
+
+                if (currentTarget > 16) {
+                    clearInterval(timer);
+                    showWin();
+                }
+            } else {
+                timeLeft -= 1.5; // Penalización por error
+                document.body.style.backgroundColor = "#200";
+                setTimeout(() => document.body.style.backgroundColor = "#050505", 200);
+            }
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            const totalLevelTime = timeLeft;
+            timer = setInterval(() => {
+                timeLeft -= 0.05;
+                const percent = (timeLeft / totalLevelTime) * 100;
+                document.getElementById('timer-bar').style.width = percent + "%";
+
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    showLose();
+                }
+            }, 50);
+        }
+
+        function showWin() {
+            document.getElementById('win-overlay').style.display = 'flex';
+        }
+
+        function nextLevel() {
+            level++;
+            document.getElementById('win-overlay').style.display = 'none';
+            initLevel();
+        }
+
+        function showLose() {
+            document.getElementById('lose-overlay').style.display = 'flex';
+            document.getElementById('final-lvl').innerText = level;
+        }
+
+        function getExtraTime() {
+            window.open("https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea", "_blank");
+            timeLeft += 15;
+            // Asegurar que la barra no se desborde visualmente si sumamos mucho tiempo
+            document.getElementById('timer-bar').style.width = "100%";
+        }
+
+        initLevel();
+    </script>
+</body>
+</html>

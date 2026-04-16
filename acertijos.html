@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>ACERTIJOS 🧠</title>
+    <style>
+        :root {
+            --primary: #00f2fe;
+            --secondary: #4facfe;
+            --accent: #7000ff;
+            --bg: #0f172a;
+            --glass: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at top, #1e293b, #0f172a);
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-x: hidden;
+        }
+
+        .game-card {
+            background: var(--glass);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 370px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            text-align: center;
+            margin: 30px auto;
+        }
+
+        h1 { 
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            text-transform: uppercase;
+            margin: 5px 0;
+        }
+
+        .level-tag { 
+            background: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        #riddle-text {
+            font-size: 1.05rem;
+            line-height: 1.3;
+            margin-bottom: 15px;
+            min-height: 45px;
+        }
+
+        .slots {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .slot {
+            width: 32px;
+            height: 38px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--primary);
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-shadow: 0 0 5px var(--primary);
+            cursor: pointer;
+        }
+
+        .main-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: #000;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            font-weight: bold;
+            font-size: 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+            margin-bottom: 10px;
+        }
+
+        .ad-btn {
+            background: rgba(255,255,255,0.05);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 8px;
+            width: 100%;
+            font-size: 0.85rem;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* TECLADO CORREGIDO */
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .kb-row {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .key {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            flex: 1;
+            max-width: 38px;
+            height: 48px;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: 0.1s;
+            user-select: none;
+        }
+
+        .key:active { 
+            background: var(--primary); 
+            color: #000; 
+            transform: scale(0.9); 
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 2px solid var(--primary);
+            padding: 25px;
+            border-radius: 25px;
+            text-align: center;
+            width: 85%;
+            max-width: 400px;
+        }
+
+        .modal-btn {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 15px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-card">
+        <h1>ACERTIJOS 🧠</h1>
+        <span class="level-tag" id="level-display">Cargando...</span>
+        
+        <p id="riddle-text">Cargando acertijo...</p>
+        
+        <div class="slots" id="letter-slots"></div>
+
+        <button class="main-btn" onclick="checkAnswer()">LISTO</button>
+        <button class="ad-btn" onclick="getHelp()">💡 VER ANUNCIO (PISTA)</button>
+
+        <div class="keyboard">
+            <div class="kb-row">
+                <div class="key" onclick="press('Q')">Q</div>
+                <div class="key" onclick="press('W')">W</div>
+                <div class="key" onclick="press('E')">E</div>
+                <div class="key" onclick="press('R')">R</div>
+                <div class="key" onclick="press('T')">T</div>
+                <div class="key" onclick="press('Y')">Y</div>
+                <div class="key" onclick="press('U')">U</div>
+                <div class="key" onclick="press('I')">I</div>
+                <div class="key" onclick="press('O')">O</div>
+                <div class="key" onclick="press('P')">P</div>
+            </div>
+            <div class="kb-row">
+                <div class="key" onclick="press('A')">A</div>
+                <div class="key" onclick="press('S')">S</div>
+                <div class="key" onclick="press('D')">D</div>
+                <div class="key" onclick="press('F')">F</div>
+                <div class="key" onclick="press('G')">G</div>
+                <div class="key" onclick="press('H')">H</div>
+                <div class="key" onclick="press('J')">J</div>
+                <div class="key" onclick="press('K')">K</div>
+                <div class="key" onclick="press('L')">L</div>
+                <div class="key" onclick="press('Ñ')">Ñ</div>
+            </div>
+            <div class="kb-row">
+                <div class="key" onclick="press('Z')">Z</div>
+                <div class="key" onclick="press('X')">X</div>
+                <div class="key" onclick="press('C')">C</div>
+                <div class="key" onclick="press('V')">V</div>
+                <div class="key" onclick="press('B')">B</div>
+                <div class="key" onclick="press('N')">N</div>
+                <div class="key" onclick="press('M')">M</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="custom-modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-title"></h2>
+            <p id="modal-msg"></p>
+            <button id="modal-action-btn" class="modal-btn" onclick="closeModal()">VOLVER</button>
+        </div>
+    </div>
+
+<script>
+    const originalRiddles = [
+        { q: "¿Qué tiene llaves pero no abre ninguna cerradura?", a: "PIANO", h: "Tiene muchas notas blancas y negras." },
+        { q: "Siempre estoy en camino, pero nunca llego. ¿Qué soy?", a: "MAÑANA", h: "Es el día que sigue al de hoy." },
+        { q: "¿Qué es lo que puedes romper, incluso si nunca lo tocas?", a: "PROMESA", h: "Se hace con la palabra y el compromiso." },
+        { q: "Cuanto más le quitas, más grande se vuelve. ¿Qué es?", a: "AGUJERO", h: "Puede estar en la tierra o en un calcetín." },
+        { q: "¿Qué tiene un ojo pero no puede ver?", a: "AGUJA", h: "Se usa para coser ropa." },
+        { q: "¿Qué tiene manos pero no puede aplaudir?", a: "RELOJ", h: "Marca las horas y los minutos." },
+        { q: "Lo compras para comer, pero nunca te lo comes. ¿Qué es?", a: "PLATO", h: "Es donde sirves la comida." },
+        { q: "Si me tienes, quieres compartirme. Si me compartes, ya no me tienes.", a: "SECRETO", h: "Algo que se cuenta al oído." },
+        { q: "¿Qué sube pero nunca baja?", a: "EDAD", h: "Cumples años cada vez que pasa un año." },
+        { q: "¿Qué es lo que tiene un montón de dientes pero nunca muerde?", a: "PEINE", h: "Lo usas para arreglarte el cabello." },
+        { q: "¿Qué es lo que se moja mientras se seca?", a: "TOALLA", h: "La usas después de bañarte." },
+        { q: "Vuelo sin alas, lloro sin ojos. ¿Qué soy?", a: "NUBE", h: "Está en el cielo y suelta lluvia." },
+        { q: "Tengo ciudades pero no casas, montañas pero no árboles. ¿Qué soy?", a: "MAPA", h: "Es una representación de la tierra en papel." },
+        { q: "Cuanto más hay, menos ves. ¿Qué es?", a: "OSCURIDAD", h: "Aparece cuando apagas la luz." },
+        { q: "Soy alto cuando soy joven y bajo cuando soy viejo. ¿Qué soy?", a: "VELA", h: "Se ilumina con fuego y se derrite." },
+        { q: "¿Qué palabra se escribe incorrectamente en todos los diccionarios?", a: "INCORRECTAMENTE", h: "Piénsalo literalmente." },
+        { q: "¿Qué tiene una pierna pero no puede caminar?", a: "HONGO", h: "Crece en la humedad, también le dicen seta." },
+        { q: "Blanco por dentro, verde por fuera. Si quieres que te diga, espera.", a: "PERA", h: "La respuesta está escondida en la rima." },
+        { q: "¿Qué tiene cuello pero no tiene cabeza?", a: "BOTELLA", h: "Por ahí sale el refresco o el agua." },
+        { q: "¿Qué es lo que viaja por todo el mundo pero se queda en un rincón?", a: "ESTAMPILLA", h: "Se pega en los sobres de las cartas." },
+        { q: "Tengo muchas hojas pero no soy un árbol. ¿Qué soy?", a: "LIBRO", h: "Sirve para leer historias." },
+        { q: "¿Qué se rompe al decir su nombre?", a: "SILENCIO", h: "Es lo opuesto al ruido." },
+        { q: "Soy circular y reflejo todo lo que veo. ¿Qué soy?", a: "ESPEJO", h: "Te sirve para ver tu propio rostro." },
+        { q: "Cuanto más seca, más se moja ella misma. ¿Qué es?", a: "ESPONJA", h: "Se usa para lavar los platos." },
+        { q: "¿Qué tiene ramas pero no tiene hojas, fruta ni tronco?", a: "BANCO", h: "Tiene sucursales en todo el país." },
+        { q: "¿Qué sube y baja pero siempre se queda en el mismo sitio?", a: "ESCALERA", h: "Te ayuda a subir al segundo piso." },
+        { q: "Si me tiras por la ventana no me rompo, pero si me tiras al agua sí.", a: "PAPEL", h: "Se deshace cuando se moja mucho." },
+        { q: "Tiene dientes pero no boca. ¿Qué es?", a: "SERRUCHO", h: "Se usa para cortar madera." },
+        { q: "Empieza por E y termina por E, y solo tiene una letra.", a: "SOBRE", h: "Dentro de él pones una carta." },
+        { q: "Tiene cuatro patas pero no puede caminar.", a: "MESA", h: "Donde pones los platos para comer." },
+        { q: "Sube llena y baja vacía, si no se da prisa, la sopa se enfría.", a: "CUCHARA", h: "Cubierto que usas para tomar caldo." },
+        { q: "Viene y va, pero siempre está en la puerta.", a: "TIMBRE", h: "Lo tocas para que te abran." },
+        { q: "Es tuyo, pero los demás lo usan más que tú.", a: "NOMBRE", h: "Es como te llaman tus amigos." },
+        { q: "¿Qué pesa más, un kilo de plomo o un kilo de plumas?", a: "AMBOS", h: "Un kilo siempre es un kilo." },
+        { q: "Llevo mi casa a cuestas y camino muy lento.", a: "CARACOL", h: "Es un animalito con antenas." },
+        { q: "Se pone en la mesa, se corta, se reparte, pero no se come.", a: "BARAJA", h: "Se usa para jugar juegos de azar o cartas." },
+        { q: "Tengo agujeros arriba, abajo y a los lados, pero retengo agua.", a: "ESPONJA", h: "Es muy suave y absorbe líquidos." },
+        { q: "¿Qué es lo que puedes ver en el agua pero nunca se moja?", a: "REFLEJO", h: "Es como tu sombra en el río." },
+        { q: "¿Qué es lo que siempre viene pero nunca llega?", a: "FUTURO", h: "Es lo que pasará después." },
+        { q: "Aunque tiene patas, no puede correr; aunque tiene alas, no puede volar.", a: "MESA", h: "A veces se le llama mesa de alas." },
+        { q: "Nace en el mar, muere en el río. ¿Qué es?", a: "OLAS", h: "Se mueven con el viento en la playa." },
+        { q: "Oro parece, plata no es. El que no lo adivine, bien tonto es.", a: "PLATANO", h: "La respuesta está en la rima." },
+        { q: "Tengo teclas pero no soy piano, tengo ratón pero no soy gato.", a: "COMPUTADORA", h: "La usas para navegar en internet." },
+        { q: "Soy una caja que guarda tesoros, pero no tengo llave.", a: "CEREBRO", h: "Está dentro de tu cabeza." },
+        { q: "Tengo ciudades, pero no habitantes. ¿Qué soy?", a: "MAPA", h: "Un dibujo de la geografía." },
+        { q: "Se abre cuando llueve y se cierra cuando sale el sol.", a: "PARAGUAS", h: "Te protege de la lluvia." },
+        { q: "¿Qué es lo que no tiene voz pero sí puede hablarte?", a: "LIBRO", h: "Te cuenta historias cuando lo lees." },
+        { q: "Entra duro y seco, sale blando y pegajoso.", a: "CHICLE", h: "Lo masticas por mucho tiempo." },
+        { q: "Soy un caballero con armadura, pero muy lento.", a: "TORTUGA", h: "Es un animal que vive muchos años." },
+        { q: "Se hace más corto cuanto más lo usas.", a: "LAPIZ", h: "Lo usas para escribir en el cuaderno." }
+    ];
+
+    let riddles = [...originalRiddles];
+    let currentLevel = 0;
+    let userEntry = [];
+    const smartlink = "https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea";
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function showModal(title, msg, btnText, isSuccess) {
+        document.getElementById('modal-title').innerText = title;
+        document.getElementById('modal-msg').innerText = msg;
+        const btn = document.getElementById('modal-action-btn');
+        btn.innerText = btnText;
+        if(isSuccess) {
+            btn.onclick = () => { closeModal(); nextLevel(); };
+        } else {
+            btn.onclick = closeModal;
+        }
+        document.getElementById('custom-modal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('custom-modal').style.display = 'none';
+    }
+
+    function loadRiddle() {
+        if (currentLevel >= riddles.length) {
+            showModal("¡FELICIDADES!", "Completaste todos los acertijos.", "REINICIAR JUEGO", true);
+            currentLevel = 0;
+            shuffle(riddles);
+            return;
+        }
+        document.getElementById('level-display').innerText = "FASE " + (currentLevel + 1);
+        document.getElementById('riddle-text').innerText = riddles[currentLevel].q;
+        userEntry = new Array(riddles[currentLevel].a.length).fill("");
+        renderSlots();
+    }
+
+    function renderSlots() {
+        const container = document.getElementById('letter-slots');
+        container.innerHTML = "";
+        userEntry.forEach((char, index) => {
+            const slot = document.createElement('div');
+            slot.className = 'slot';
+            slot.innerText = char;
+            // Al tocar la casilla individual, se borra
+            slot.onclick = () => {
+                userEntry[index] = "";
+                renderSlots();
+            };
+            container.appendChild(slot);
+        });
+    }
+
+    function press(key) {
+        const emptyIndex = userEntry.indexOf("");
+        if (emptyIndex !== -1) {
+            userEntry[emptyIndex] = key;
+            renderSlots();
+        }
+    }
+
+    function checkAnswer() {
+        if (userEntry.join("") === riddles[currentLevel].a) {
+            showModal("CORRECTO", "¡Lo lograste!", "SIGUIENTE", true);
+        } else {
+            showModal("INCORRECTO", "Analiza mejor la pregunta.", "VOLVER", false);
+        }
+    }
+
+    function nextLevel() {
+        currentLevel++;
+        loadRiddle();
+    }
+
+    function getHelp() {
+        window.open(smartlink, '_blank');
+        showModal("PISTA", "Espera 5 segundos viendo el anuncio...", "ENTENDIDO", false);
+        setTimeout(() => {
+            showModal("PISTA REVELADA", riddles[currentLevel].h, "VOLVER", false);
+        }, 5000);
+    }
+
+    shuffle(riddles);
+    loadRiddle();
+</script>
+</body>
+</html>

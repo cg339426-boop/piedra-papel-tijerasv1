@@ -2,214 +2,211 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JUEGOS 🎮 - HUB</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+    <title>JUEGOS 🎮 - LOBBY</title>
     <style>
         :root {
-            --neon-blue: #00f3ff;
-            --neon-pink: #ff00ff;
-            --neon-purple: #a855f7;
-            --neon-green: #00ff88;
-            --neon-yellow: #ffcc00;
-            --neon-orange: #ff6600;
-            --bg: #0a0a0a;
+            --bg: #050505;
+            --glass: rgba(255, 255, 255, 0.05);
+            /* Colores Neón */
+            --n-yellow: #ffcc00;
+            --n-blue: #00d4ff;
+            --n-green: #00ff88;
+            --n-purple: #a855f7;
+            --n-pink: #f43f5e;
+            --n-red: #ff3131;
         }
 
         body {
-            background-color: var(--bg);
+            background: radial-gradient(circle at top, #111, #000);
             color: white;
-            font-family: 'Arial Black', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
-            overflow-y: auto;
-            padding: 20px 0;
         }
 
-        .logo {
-            font-size: 2.5rem;
-            text-transform: uppercase;
-            color: white;
-            text-shadow: 3px 3px var(--neon-blue), -3px -3px var(--neon-pink);
-            margin-bottom: 30px;
-            letter-spacing: 5px;
+        header {
             text-align: center;
-            line-height: 1;
+            padding: 40px 20px;
         }
 
-        .menu-container {
+        h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            background: linear-gradient(to bottom, #fff, #aaa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            font-weight: 900;
+        }
+
+        .grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 15px;
             width: 90%;
             max-width: 450px;
+            padding-bottom: 30px;
         }
 
         .game-card {
-            background: linear-gradient(145deg, #1a1a1a, #000);
-            border: 2px solid #333;
-            padding: 20px 10px;
+            background: var(--glass);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
+            padding: 25px 10px;
             text-align: center;
             text-decoration: none;
             color: white;
+            transition: 0.3s;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: 0.3s;
-            aspect-ratio: 1/1;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
         }
 
-        .game-card span:nth-child(2) {
-            font-size: 0.75rem;
-            margin-top: 10px;
-            font-weight: bold;
+        .game-card:active { transform: scale(0.9); }
+
+        /* Colores Neón Brillantes */
+        .neon-yellow { border-color: var(--n-yellow); box-shadow: 0 0 15px rgba(255,204,0,0.3); }
+        .neon-blue   { border-color: var(--n-blue);   box-shadow: 0 0 15px rgba(0,212,255,0.3); }
+        .neon-green  { border-color: var(--n-green);  box-shadow: 0 0 15px rgba(0,255,136,0.3); }
+        .neon-purple { border-color: var(--n-purple); box-shadow: 0 0 15px rgba(168,85,247,0.3); }
+        .neon-pink   { border-color: var(--n-pink);   box-shadow: 0 0 15px rgba(244,63,94,0.3); }
+        .neon-red    { border-color: var(--n-red);    box-shadow: 0 0 15px rgba(255,49,49,0.3); }
+
+        .icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .game-title {
+            font-weight: 900;
+            font-size: 0.85rem;
             text-transform: uppercase;
-        }
-
-        /* Bordes actualizados según la nueva posición */
-        .card-ahorcado-mini { border-color: var(--neon-yellow); } 
-        .card-num { border-color: var(--neon-blue); }
-        .card-puzzle { border-color: var(--neon-purple); }
-        .card-memoria { border-color: var(--neon-green); }
-        .card-ppt-big { border-color: var(--neon-orange); }
-
-        .full-width {
-            grid-column: span 2;
-            aspect-ratio: auto;
-            height: 130px; /* Un poco más de altura para el texto extra */
-        }
-
-        .game-card:active { transform: scale(0.95); background: #222; }
-
-        .footer {
-            margin-top: 40px;
-            text-align: center;
-            font-size: 0.7rem;
-            color: #666;
             letter-spacing: 1px;
         }
 
-        .creator-link {
-            display: block;
-            margin-top: 10px;
-            color: var(--neon-pink);
-            text-decoration: none;
-            font-weight: bold;
-            cursor: pointer;
-            text-shadow: 0 0 5px var(--neon-pink);
-        }
-
-        #modal {
-            display: none;
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 85%;
-            max-width: 320px;
-            background: #111;
-            border: 2px solid var(--neon-pink);
+        footer {
+            margin-top: auto;
             padding: 30px;
-            border-radius: 25px;
-            z-index: 100;
-            text-align: center;
-            box-shadow: 0 0 40px rgba(255, 0, 255, 0.4);
         }
 
-        #overlay {
-            display: none;
+        .btn-creator {
+            background: none;
+            border: 1px solid #444;
+            color: #888;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+
+        .btn-creator:active {
+            border-color: var(--n-blue);
+            color: white;
+        }
+
+        /* Ventana Flotante (Modal) */
+        .modal {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            z-index: 90;
+            background: rgba(0,0,0,0.95);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
 
-        .btn-close {
-            margin-top: 25px;
-            background: none;
-            border: 1px solid #555;
-            color: #888;
-            padding: 8px 20px;
-            border-radius: 10px;
-            font-size: 0.8rem;
+        .modal-content {
+            background: #111;
+            padding: 30px;
+            border-radius: 25px;
+            border: 2px solid var(--n-blue);
+            text-align: center;
+            width: 80%;
+            max-width: 320px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
         }
 
-        .contact-info {
-            margin: 15px 0;
-            font-family: 'Arial', sans-serif;
-            color: #ddd;
-            font-size: 0.9rem;
+        .modal-content h3 { margin: 0 0 20px 0; color: var(--n-blue); letter-spacing: 2px; }
+        .modal-content p { font-size: 1rem; margin: 12px 0; color: #ccc; }
+        
+        .close-btn {
+            margin-top: 20px;
+            background: var(--n-blue);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 900;
+            cursor: pointer;
         }
-
-        .contact-info strong { color: var(--neon-blue); display: block; margin-top: 5px; }
     </style>
 </head>
 <body>
 
-    <div class="logo">JUEGOS 🎮<br><span style="font-size: 1rem; color: var(--neon-blue); letter-spacing: 2px;">GAMING ZONE</span></div>
+    <header>
+        <h1>JUEGOS 🎮</h1>
+    </header>
 
-    <div class="menu-container">
-        
-        <a href="ahorcado.html" class="game-card card-ahorcado-mini">
-            <span style="font-size: 2.5rem;">💀</span>
-            <span>AHORCADO PRO</span>
-            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+    <main class="grid-container">
+        <a href="trivia.html" class="game-card neon-yellow">
+            <span class="icon">⚡</span>
+            <span class="game-title">Trivia Flash</span>
         </a>
 
-        <a href="tetris.html" class="game-card card-num">
-            <span style="font-size: 2.5rem;">👀</span>
-            <span>ENCUENTRA EL NÚMERO</span>
-            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        <a href="numero.html" class="game-card neon-blue">
+            <span class="icon">🔢</span>
+            <span class="game-title">Número Loco</span>
         </a>
 
-        <a href="puzzle.html" class="game-card card-puzzle">
-            <span style="font-size: 2.5rem;">🧩</span>
-            <span>PUZZLE LOCO</span>
-            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        <a href="acertijos.html" class="game-card neon-green">
+            <span class="icon">🧠</span>
+            <span class="game-title">Acertijos</span>
         </a>
 
-        <a href="memoria.html" class="game-card card-memoria">
-            <span style="font-size: 2.5rem;">🧠</span>
-            <span>MEMORIA ELITE</span>
-            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        <a href="puzzle.html" class="game-card neon-purple">
+            <span class="icon">🧩</span>
+            <span class="game-title">Puzzle Keys</span>
         </a>
 
-        <a href="ppt.html" class="game-card card-ppt-big full-width">
-            <span style="font-size: 2.5rem;">✊</span>
-            <span>PIEDRA, PAPEL, TIJERA</span>
-            <span style="font-size: 0.85rem; color: var(--neon-blue); margin-top:4px;">¡JUEGA CON UN AMIGO! 👥</span>
-            <span style="font-size: 1rem; margin-top:5px;">▶️</span>
+        <a href="memoria.html" class="game-card neon-pink">
+            <span class="icon">🏞️</span>
+            <span class="game-title">Memoria</span>
         </a>
 
-    </div>
+        <a href="ppt.html" class="game-card neon-red">
+            <span class="icon">✊</span>
+            <span class="game-title">Piedra papel tijeras</span>
+        </a>
+    </main>
 
-    <div class="footer">
-        DESARROLLADO PARA GANAR 🚀
-        <div class="creator-link" onclick="toggleModal(true)">ACERCA DEL CREADOR</div>
-    </div>
+    <footer>
+        <button class="btn-creator" onclick="toggleModal(true)">Acerca del creador</button>
+    </footer>
 
-    <div id="overlay" onclick="toggleModal(false)"></div>
-    <div id="modal">
-        <h3 style="color: var(--neon-pink); margin-top: 0;">INFO DEL PROGRAMADOR</h3>
-        <div class="contact-info">
-            📱 CONTACTO:
-            <strong>TU NOMBRE AQUÍ</strong>
+    <div id="creatorModal" class="modal">
+        <div class="modal-content">
+            <h3>CONTACTO</h3>
+            <p>📧Correo:@gmail.com</p>
+            <p>📱 WhatsApp:*****</p>
+            <button class="close-btn" onclick="toggleModal(false)">CERRAR</button>
         </div>
-        <div class="contact-info">
-            📱 WHATSAPP:
-            <strong>+58 000 000 0000</strong>
-        </div>
-        <button class="btn-close" onclick="toggleModal(false)">VOLVER AL MENÚ</button>
     </div>
 
     <script>
         function toggleModal(show) {
-            document.getElementById('modal').style.display = show ? 'block' : 'none';
-            document.getElementById('overlay').style.display = show ? 'block' : 'none';
+            document.getElementById('creatorModal').style.display = show ? 'flex' : 'none';
         }
     </script>
 
