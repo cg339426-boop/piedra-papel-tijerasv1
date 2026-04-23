@@ -11,6 +11,7 @@
             --w-blue: #007bff;
             --w-cyan: #00ffff;
             --w-yellow: #ffcc00;
+            --ad-height: 55px; /* Espacio para el banner */
         }
 
         body {
@@ -22,7 +23,10 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            /* Padding inferior para que el banner no tape el botón de pista */
+            padding-bottom: calc(var(--ad-height) + 20px);
+            box-sizing: border-box;
         }
 
         header {
@@ -81,7 +85,9 @@
         .c4 { background-color: var(--w-yellow); }
 
         #btn-eye {
-            position: fixed; bottom: 30px; right: 20px;
+            position: fixed; 
+            bottom: calc(var(--ad-height) + 15px); /* Ajustado para subir si hay banner */
+            right: 20px;
             background: radial-gradient(circle, #007bff, #001a33);
             border: 2px solid var(--w-cyan); color: white;
             font-size: 1.8rem; width: 70px; height: 70px;
@@ -89,11 +95,27 @@
             z-index: 100; display: flex; align-items: center; justify-content: center;
         }
 
+        /* CONTENEDOR ANUNCIO */
+        .ad-footer-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--ad-height);
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 150;
+            border-top: 1px solid #333;
+        }
+
         #msg-overlay {
             position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.95); display: none;
             flex-direction: column; align-items: center; justify-content: center;
-            z-index: 200; text-align: center; padding: 20px;
+            z-index: 2000; /* Siempre encima de todo */
+            text-align: center; padding: 20px;
         }
     </style>
 </head>
@@ -121,6 +143,19 @@
         <button onclick="location.reload()" style="padding:15px 40px; border-radius:30px; background:var(--w-cyan); border:none; font-weight:bold; color: black; font-size: 1.1rem;">REINTENTAR</button>
     </div>
 
+    <div class="ad-footer-fixed">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '20622febebc58aceaadca806e30f7816',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/20622febebc58aceaadca806e30f7816/invoke.js"></script>
+    </div>
+
     <script>
         const smartlink = "https://www.profitablecpmratenetwork.com/p2y3r3phx?key=0a9217a59faa68685a1f87c8ae5fc3ea";
         const grid = document.getElementById('game-grid');
@@ -141,11 +176,7 @@
             flippedCards = [];
             lockGrid = true;
             
-            // 1. Actualizar texto de nivel
             levelDisplay.innerText = `NIVEL ${currentLevel + 1}`;
-            
-            // 2. Calcular y reiniciar tiempo según el nivel
-            // Sube 10 seg cada 2 niveles: Niv 1-2 (60s), Niv 3-4 (70s), Niv 5-6 (80s)...
             timeLeft = 60 + (Math.floor(currentLevel / 2) * 10);
             updateTimerDisplay();
 
@@ -173,7 +204,7 @@
                 setTimeout(() => {
                     cardElements[pos].classList.add('show');
                     if(i === indices.length - 1) lockGrid = false;
-                }, 800 / cardElements.length); // Ajuste de velocidad según cantidad
+                }, 800 / cardElements.length);
             });
 
             if(timerId) clearInterval(timerId);
@@ -238,7 +269,6 @@
                     
                     setTimeout(() => {
                         all.forEach(c => {
-                            // Solo regresamos las que NO estaban ya emparejadas antes de la pista
                             if (!alreadyFlipped.includes(c)) {
                                 c.classList.remove('flipped');
                             }

@@ -10,6 +10,7 @@
             --neon-blue: #00d4ff;
             --neon-red: #ff3131;
             --premium-yellow: #ffcc00;
+            --ad-height: 60px; /* Espacio exacto para el banner */
         }
 
         body {
@@ -21,7 +22,10 @@
             align-items: center;
             min-height: 100vh;
             margin: 0;
-            overflow: hidden;
+            overflow-x: hidden;
+            /* Padding inferior para que el contenido no choque con el anuncio */
+            padding-bottom: calc(var(--ad-height) + 10px);
+            box-sizing: border-box;
         }
 
         /* BARRA DE TIEMPO */
@@ -50,7 +54,16 @@
 
         @keyframes blink { from { opacity: 1; } to { opacity: 0.4; } }
 
-        .puzzle { width: 95%; max-width: 400px; padding: 15px; text-align: center; }
+        .puzzle { 
+            width: 95%; 
+            max-width: 400px; 
+            padding: 10px; 
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
 
         .board {
             display: grid;
@@ -64,7 +77,6 @@
             box-shadow: inset 0 0 20px #000;
         }
 
-        /* ESTILO DE TECLA BASE */
         .tile {
             aspect-ratio: 1/1;
             display: flex;
@@ -77,7 +89,6 @@
             transition: 0.1s;
             position: relative;
             user-select: none;
-            /* Efecto de relieve */
             box-shadow: 0 5px 0 #000, 0 8px 15px rgba(0,0,0,0.5);
         }
 
@@ -93,42 +104,37 @@
             cursor: default;
         }
 
-        /* --- ESTILOS TEMÁTICOS (SE APLICAN POR JS) --- */
-        .theme-cyber {
-            background: linear-gradient(145deg, #1e1e1e, #222);
-            color: var(--neon-blue);
-            border: 1px solid var(--neon-blue);
-            text-shadow: 0 0 10px var(--neon-blue);
-        }
-
-        .theme-gold {
-            background: linear-gradient(145deg, #b8860b, #ffd700);
-            color: #000;
-            border: 1px solid #fff;
-            text-shadow: 1px 1px 0px rgba(255,255,255,0.5);
-        }
-
-        .theme-retro {
-            background: #e0e0e0;
-            color: #333;
-            border: 2px solid #fff;
-            box-shadow: 0 5px 0 #999;
-        }
-
-        .theme-lava {
-            background: linear-gradient(145deg, #ff416c, #ff4b2b);
-            color: #fff;
-            border: 1px solid #ff0000;
-        }
+        /* TEMAS */
+        .theme-cyber { background: linear-gradient(145deg, #1e1e1e, #222); color: var(--neon-blue); border: 1px solid var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); }
+        .theme-gold { background: linear-gradient(145deg, #b8860b, #ffd700); color: #000; border: 1px solid #fff; }
+        .theme-retro { background: #e0e0e0; color: #333; border: 2px solid #fff; box-shadow: 0 5px 0 #999; }
+        .theme-lava { background: linear-gradient(145deg, #ff416c, #ff4b2b); color: #fff; border: 1px solid #ff0000; }
 
         .btn-ad {
-            margin-top: 20px; width: 90%;
+            margin-top: 15px; width: 100%;
             background: #222; border: 2px solid var(--premium-yellow);
-            color: var(--premium-yellow); padding: 15px;
+            color: var(--premium-yellow); padding: 12px;
             border-radius: 50px; font-weight: bold;
+            font-size: 0.8rem;
+            cursor: pointer;
         }
 
-        #shuffle { background: #333; border: 1px solid #555; color: #fff; padding: 10px 20px; border-radius: 10px; margin-bottom: 10px; }
+        #shuffle { background: #333; border: 1px solid #555; color: #fff; padding: 8px 15px; border-radius: 10px; cursor: pointer; }
+
+        /* CONTENEDOR FIJO PARA EL BANNER */
+        .ad-footer-fixed {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--ad-height);
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            border-top: 1px solid #333;
+        }
     </style>
 </head>
 <body>
@@ -139,7 +145,7 @@
 
     <main class="puzzle">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <h2 id="theme-name" style="font-size: 0.9rem; color: #666;">MODO: CARGANDO</h2>
+            <h2 id="theme-name" style="font-size: 0.8rem; color: #666; margin:0;">MODO: CARGANDO</h2>
             <button id="shuffle" onclick="shuffle()">REVOLVER</button>
         </div>
 
@@ -147,6 +153,19 @@
         
         <button class="btn-ad" onclick="getExtraTime()">👁️ +40% TIEMPO (ADS)</button>
     </main>
+
+    <div class="ad-footer-fixed">
+        <script type="text/javascript">
+            atOptions = {
+                'key' : '20622febebc58aceaadca806e30f7816',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+            };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/20622febebc58aceaadca806e30f7816/invoke.js"></script>
+    </div>
 
 <script>
     'use strict';
@@ -215,17 +234,14 @@
     }
 
     function shuffle() {
-        // Cambiar tema al revolver para que no aburra
         currentTheme = themes[Math.floor(Math.random() * themes.length)];
         themeLabel.innerText = "MODO: " + currentTheme.name;
-        
         do {
             for (let i=state.length-1; i>0; i--) {
                 const j = Math.floor(Math.random()*(i+1));
                 [state[i], state[j]] = [state[j], state[i]];
             }
         } while (!isSolvable() || isSolved());
-        
         timeLeft = 100;
         gameActive = true;
         render();
@@ -247,7 +263,7 @@
         timerInterval = setInterval(() => {
             if (gameActive) {
                 timeLeft -= 0.5;
-                timeBar.style.width = timeLeft + "%";
+                timeBar.style.width = Math.max(0, timeLeft) + "%";
                 if (timeLeft <= 30) timeBar.classList.add('critical-time');
                 else timeBar.classList.remove('critical-time');
 
@@ -268,6 +284,8 @@
                 timeLeft = Math.min(100, timeLeft + 40);
                 timeBar.style.width = timeLeft + "%";
                 alert("🎁 ¡TIEMPO EXTRA!");
+            } else {
+                alert("Debes ver el anuncio completo para obtener el tiempo extra.");
             }
             window.onfocus = null;
         };
